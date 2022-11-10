@@ -5,7 +5,7 @@
 
 - Nishanth
 - Swapnil
-- Sruthi
+- Sruthi Praveen Kumar Geetha
 - Abhinava
 
 ---
