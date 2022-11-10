@@ -35,3 +35,5 @@ The main objective of the project is to implement a two-player (over the network
 3. Computes valid positions for next move and sends it along with current game state to the client whose turn is next
 4. Handles client disconnects: declare a game lost by a client if the client is unreachable
 5. (Optional) Saved games history
+
+Goals marked (Optional) will be implemented only if there is sufficient time. 
