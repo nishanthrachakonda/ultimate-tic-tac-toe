@@ -1,11 +1,11 @@
 # Ultimate-Tic-Tac-Toe
-===
+---
 
 ## Team Members
 
 - Nishanth
 - Swapnil
-- Shruthi
+- Sruthi
 - Abhinava
 
 ---
