@@ -6,7 +6,7 @@
 - Nishanth
 - Swapnil Rustagi
 - Sruthi Praveen Kumar Geetha
-- Abhinava
+- Abhinava Arasada
 
 ---
 
