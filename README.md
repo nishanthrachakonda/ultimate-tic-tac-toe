@@ -3,7 +3,7 @@
 
 ## Team Members
 
-- Nishanth
+- Nishanth Rachakonda
 - Swapnil Rustagi
 - Sruthi Praveen Kumar Geetha
 - Abhinava Arasada
@@ -28,7 +28,7 @@ The main objective of the project is to implement a two-player (over the network
 4. (Optional) Fetches saved games history from server and allows viewing the game move-by-move
 5. (Optional) Have a separate timed game mode where we maintain a timer to calculate the time taken by player for each move and limit the maximum amount of time taken by a player.
 
-### Server side application:
+#### Server side application:
 
 1. Matches two clients with each other for playing
 2. Maintains game state
