@@ -4,7 +4,7 @@
 ## Team Members
 
 - Nishanth
-- Swapnil
+- Swapnil Rustagi
 - Sruthi Praveen Kumar Geetha
 - Abhinava
 
