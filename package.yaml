@@ -33,8 +33,6 @@ ghc-options:
 - -Wpartial-fields
 - -Wredundant-constraints
 
-library:
-  source-dirs: src
 
 executables:
   ultimate-tic-tac-toe-exe:
@@ -45,7 +43,7 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - ultimate-tic-tac-toe
+    - network >= 2.6.1.0
 
 tests:
   ultimate-tic-tac-toe-test:
@@ -55,5 +53,3 @@ tests:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
-    dependencies:
-    - ultimate-tic-tac-toe
