@@ -1,4 +1,4 @@
-module Main where
+module Client where
 
 import Network.Socket
 import System.IO
