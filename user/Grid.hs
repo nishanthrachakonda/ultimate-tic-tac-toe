@@ -3,6 +3,7 @@ module Grid where
 
 import Utils
 import qualified Data.Map as Map
+import Data.Maybe
 
 -------------------------------
 ---- / Grid
@@ -14,27 +15,42 @@ type Grid = Map.Map Position Value
 -------------------------------
 
 put :: Grid -> Position -> Value -> Status
-put grid pos xo = case Map.lookup pos grid of
-                    Just _ -> Error
-                    Nothing -> getS (Map.insert pos xo grid)
+put grid pos xo | isJust (Map.lookup pos grid) = Error
+                | otherwise = Success (getS (Map.insert pos xo grid))
 
 
 ----------------------------------
 ---- / State
 ----------------------------------
-getS :: Grid -> Status
-getS _ = Success Draw
--- getS grid = do 
---                 if Map.size grid == 9
---                     then return Draw
---                     else if isWon grid X
---                     then return Win X
---                     else if isWon grid O
---                     then return Win O
---                     else return Ongoing
+getS :: Grid -> GridStatus
+getS grid | Map.size grid == 9 = Draw
+          | isWon grid X = Win X
+          | isWon grid O = Win O
+          | otherwise = Ongoing
 
--- isWon :: Grid -> Value -> GridStatus
--- isWon grid value = Win X
+isWon :: Grid -> Value -> Bool
+isWon grid value = True
+
+iswinning :: grid -> [Position] -> Bool
+iswinning grid posL = grid 
+
+-- winpos :: [[Position]]
+-- winpos = rwinpos ++ cwinpos ++ dwinpos ++ adwinpos
+
+rwinpos :: Grid -> Value -> [[Bool]]
+rwinpos grid value = [[grid Map.! 3*i+j+1 == value | i <- [0..2]] | j <- [0..2]]
+
+cwinpos :: [[Position]]
+cwinpos = [[3*i+j+1 | j <- [0..2]] | i <- [0..2]]
+
+dwinpos :: [[Position]]
+dwinpos = [[4*i+1 | i <- [0..2]]]
+
+-- >>> cwinpos
+-- [[1,4,7],[2,5,8],[3,6,9],[1,2,3],[4,5,6],[7,8,9],[1,5,9],[3,5,7]]
+
+adwinpos :: [[Position]]
+adwinpos = [[2*i+3 | i <- [0..2]]]
 
 ----------------------------------
 ---- / Moves
