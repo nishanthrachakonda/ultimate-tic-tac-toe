@@ -12,7 +12,7 @@ import System.Exit
 
 
 test1 :: Test
-test1 = TestCase (assertEqual "Insert X" (Success Draw) (put Map.empty 3 X))
+test1 = TestCase (assertEqual "Insert X" (Success Ongoing) (put Map.empty 3 X))
 
 
 main :: IO ()
