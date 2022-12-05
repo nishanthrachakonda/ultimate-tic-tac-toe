@@ -11,7 +11,8 @@ import Test.HUnit
 import System.Exit
 
 
-test1 = TestCase (assertEqual "Insert X" (Success) (put Map.empty 3 X))
+test1 :: Test
+test1 = TestCase (assertEqual "Insert X" (Success Draw) (put Map.empty 3 X))
 
 
 main :: IO ()
@@ -19,6 +20,6 @@ main = do
     counts <- runTestTT ( test [
         test1
         ])
-    if (errors counts + failures counts == 0)
+    if errors counts + failures counts == 0
         then exitSuccess
         else exitFailure

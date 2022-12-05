@@ -7,9 +7,6 @@ import qualified Data.Map as Map
 -------------------------------
 type Board = Map Position (GridStatus, Grid)
 
-data GridStatus = Win Value | Draw | Ongoing
-     deriving (Eq, Show)
-
 -------------------------------
 ---- / Action
 -------------------------------

@@ -6,7 +6,11 @@ module Utils where
 ------------------------------
 type Position = Int
 
-data Status = Success | Error
+data GridStatus = Win Value | Draw | Ongoing
+     deriving (Eq, Show)
+
+data Status = Success GridStatus | Error
+     deriving (Eq, Show)
 
 data Value = X | O
      deriving (Eq, Show)
