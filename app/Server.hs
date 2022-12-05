@@ -33,7 +33,9 @@ runConn (sock, _) chan msgNum = do
     hdl <- socketToHandle sock ReadWriteMode
     hSetBuffering hdl NoBuffering
 
-    hPutStrLn hdl "Hi, what's your name?"
+    let msgToSend = "Hello, what's your name?"
+    hPutStr hdl (show (length msgToSend))
+    hPutStrLn hdl "Hello, what's your name?"
     name <- fmap init (hGetLine hdl)
     broadcast ("--> " ++ name ++ " entered chat.")
     hPutStrLn hdl ("Welcome, " ++ name ++ "!")
