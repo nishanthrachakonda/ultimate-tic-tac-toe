@@ -29,28 +29,24 @@ getS grid | Map.size grid == 9 = Draw
           | otherwise = Ongoing
 
 isWon :: Grid -> Value -> Bool
-isWon grid value = True
+isWon grid value = any and (rwinpos grid value)
 
-iswinning :: grid -> [Position] -> Bool
-iswinning grid posL = grid 
-
--- winpos :: [[Position]]
--- winpos = rwinpos ++ cwinpos ++ dwinpos ++ adwinpos
+-- iswinning :: grid -> [Position] -> Bool
+-- iswinning grid posL = any and (rwinpos grid X)
 
 rwinpos :: Grid -> Value -> [[Bool]]
-rwinpos grid value = [[grid Map.! 3*i+j+1 == value | i <- [0..2]] | j <- [0..2]]
+rwinpos grid value = [[grid Map.! 3*i+j+1 == value  | i <- [0, 1, 2]] | j <- [0, 1, 2]]
 
-cwinpos :: [[Position]]
-cwinpos = [[3*i+j+1 | j <- [0..2]] | i <- [0..2]]
+cwinpos :: Grid -> Value -> [[Bool]]
+cwinpos grid value = [[grid Map.! 3*i+j+1 == value | j <- [0, 1, 2]] | i <- [0, 1, 2]]
 
-dwinpos :: [[Position]]
-dwinpos = [[4*i+1 | i <- [0..2]]]
+dwinpos :: Grid -> Value -> [[Bool]]
+dwinpos grid value = [[grid Map.! 4*i+1 == value | i <- [0, 1, 2]]]
 
--- >>> cwinpos
--- [[1,4,7],[2,5,8],[3,6,9],[1,2,3],[4,5,6],[7,8,9],[1,5,9],[3,5,7]]
+adwinpos :: Grid -> Value -> [[Bool]]
+adwinpos grid value = [[grid Map.! 2*i+3 == value | i <- [0, 1, 2]]]
 
-adwinpos :: [[Position]]
-adwinpos = [[2*i+3 | i <- [0..2]]]
+--
 
 ----------------------------------
 ---- / Moves
