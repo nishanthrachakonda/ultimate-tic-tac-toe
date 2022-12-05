@@ -46,7 +46,7 @@ dwinpos grid value = [[grid Map.! 4*i+1 == value | i <- [0, 1, 2]]]
 adwinpos :: Grid -> Value -> [[Bool]]
 adwinpos grid value = [[grid Map.! 2*i+3 == value | i <- [0, 1, 2]]]
 
---
+-- >>> 
 
 ----------------------------------
 ---- / Moves
