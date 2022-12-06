@@ -10,10 +10,10 @@ import System.Exit
 
 
 test1 :: Test
-test1 = TestCase (assertEqual "Insert X" (Success Ongoing) (put Map.empty 3 X))
+test1 = TestCase (assertEqual "Insert X" (Success Draw) (putg Map.empty 3 X))
 
 test2 :: Test
-test2 = TestCase (assertEqual "Insert O" (Success Ongoing) (put Map.empty 3 O))
+test2 = TestCase (assertEqual "Insert O" (Success Ongoing) (putg Map.empty 3 O))
 
 test3 :: Test
 test3 = TestCase (assertEqual "Up 1" (1) (up 1))
