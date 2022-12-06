@@ -24,8 +24,8 @@ main = do
   customMain initialVty buildVty (Just chan) app Model.init
   print ("Nothing")
 
-brickApp :: App PlayState Tick String
-brickApp = App
+app :: App PlayState Tick String
+app = App
   { appDraw         = view 
   , appChooseCursor = const . const Nothing
   , appHandleEvent  = control 
