@@ -42,11 +42,11 @@ play s = put (psBoard s) X (psCol s)
 --     Local  -> Retry
 
 -------------------------------------------------------------------------------
-nextGameS :: PlayState -> Result Board -> EventM n (Next PlayState)
+nextGameS :: PlayState -> Status -> EventM n (Next PlayState)
 -------------------------------------------------------------------------------
 nextGameS p s r = case r of
-  Retry  -> continue s { state = (Play p) }
-  Cont b -> continue s { state = (Play $ p {psBoard = b, psTurn = (flipRB $ psTurn p)}) }
+  Error  -> continue s { state = (Play p) }
+  Success _ -> continue s { state = (Play $ p {psBoard = b, psTurn = (flipXO $ psTurn p)}) }
 --   Draw   -> continue s { state = (initEndMenu 0) } -- Draw is 0
 --   Win R  -> continue s { state = (initEndMenu 1) } -- Red win is 1
 --   Win B  -> continue s { state = (initEndMenu 2) } -- Blue win is 2, other player left so you win is -1

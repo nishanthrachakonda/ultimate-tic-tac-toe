@@ -10,6 +10,9 @@ import Data.Maybe
 -------------------------------
 type Board = Map.Map Int (GridStatus, Grid)
 
+init :: Board
+init = Map.empty
+
 -------------------------------
 ----- / Actions
 -------------------------------
@@ -66,3 +69,7 @@ adbwinpos = [[2*i+3| i <- [0, 1, 2]]]
 moveb :: (Int -> Int) -> CurPos -> CurPos
 moveb dir pos | dir (snd pos) == snd pos = (dir (fst pos), 1)
               | otherwise                = (fst pos, dir (snd pos))
+
+flipXO :: Value -> Value
+flipXO X = O
+flipXO O = X

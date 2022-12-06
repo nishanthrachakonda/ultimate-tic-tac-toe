@@ -25,14 +25,5 @@ data PlayState = PS
 data Player = Local | Server
   deriving (Eq)
 
-initLocalGame :: State
-initLocalGame = Play $ PS 
-  { psX      = Local
-  , psO      = Server
-  , psBoard  = Board.init
-  , psTurn   = Board.R
-  , psCur    = (1, 1)
-  }
-
 isCurr :: PlayState -> CurPos -> Bool
 isCurr ps cp = (psCur s) == c
