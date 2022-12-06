@@ -21,7 +21,7 @@ view s = [view' s]
 
 view' :: PlayState -> Widget String
 
-view' s = vLimit 35 $ hLimit 130 $ mkBoard board
+view' s = vLimit 35 $ hLimit 130 $ mkBoard s board
           where
             board = psBoard s
 
@@ -48,9 +48,6 @@ mkCell s cp g | isCurr s cp = withCursor raw
 withCursor :: Widget n -> Widget n
 withCursor = modifyDefAttr (`withStyle` reverseVideo)
 
-
-
-
 mkCell' :: CurPos -> Grid -> Widget n
 mkCell' cp g = center (hLimit 5 $ vLimit 3 $ (mkValue v))
   where 
@@ -59,28 +56,13 @@ mkCell' cp g = center (hLimit 5 $ vLimit 3 $ (mkValue v))
 mkValue :: Maybe Value -> Widget n
 mkValue (Just X) = blockX
 mkValue (Just O) = blockO
-
-
-mkBoard ::  Board -> Widget n
-mkBoard b = withBorderStyle unicode $
-            vTile ([ mkgRow row b | row <- [1..3]])
-mkgRow :: Int -> Board -> Widget n
---mkgRow row = hTile [ (padAll 2 (mkGrid Map.empty)) | i <- [1..3] ]
-mkgRow row b = hTile [ (padAll 2 (hLimit 40 $ mkGrid (getGrid ((row-1)*3+i) b))) | i <- [1..3] ]
-       
+mkValue Nothing  = blockB     
 
 getGrid :: Int -> Board -> Grid
 getGrid i b = grid
               where gridL = Map.lookup i b
                     grid | isNothing gridL = Map.empty
                          | otherwise       = snd (fromJust gridL)   
-
-                       
-
-mkGrid ::  Grid -> Widget n
-mkGrid g = withBorderStyle unicode $ hLimit 40 $ vLimit 30 $
-            vTile [ mkRow row g | row <- [1..3] ]
-
 
 blockB, blockX, blockO :: Widget n
 blockB = str " "
