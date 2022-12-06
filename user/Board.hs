@@ -14,17 +14,18 @@ type Board = Map.Map Int (GridStatus, Grid)
 ----- / Actions
 -------------------------------
 
-putb :: Board -> CurPos -> Value -> Status
-putb board pos value | state == Win X = Error
-                     | state == Win O = Error
-                     | state == Draw  = Error
-                     | otherwise      = putg grid (snd pos) value
-                  where
-                    gridT = Map.lookup (fst pos) board
-                    state | isNothing gridT = Ongoing
-                          | otherwise       = fst (fromJust gridT)
-                    grid  | isNothing gridT = Map.empty
-                          | otherwise       = snd (fromJust gridT)
+putb :: Board -> Int -> CurPos -> Value -> Status
+putb board ppos pos value | state == Win X        = Error
+                           | state == Win O       = Error
+                           | state == Draw        = Error
+                           | validgrid ppos gridT = Error 
+                           | otherwise            = putg grid (snd pos) value
+                        where
+                          gridT = Map.lookup (fst pos) board
+                          state | isNothing gridT = Ongoing
+                                | otherwise       = fst (fromJust gridT)
+                          grid  | isNothing gridT = Map.empty
+                                | otherwise       = snd (fromJust gridT)
 
 ----------------------------------
 ---- / State
@@ -42,10 +43,14 @@ winbpos :: Board -> Value -> [[Bool]]
 winbpos board value = map (map (\p -> grideq value (Map.lookup p board))) (rwinpos ++ cwinpos ++ dwinpos ++ adwinpos)
 
 grideq :: Value -> Maybe (GridStatus, Grid) -> Bool
-grideq _ Nothing = False
-grideq value gridT   = Win value == gridStatus
-                      where
-                        gridStatus = fst (fromJust gridT)
+grideq _ Nothing                   = False
+grideq value (Just (gridStatus, _))  = Win value == gridStatus
+
+validgrid :: Int -> Maybe (GridStatus, Grid) -> Bool
+validgrid _ Nothing                = True
+validgrid 0 _                      = True
+validgrid _ (Just (gridStatus, _)) = gridStatus == Ongoing
+
 
 rbwinpos :: [[Int]]
 rbwinpos = [[3*i+j+1 | i <- [0, 1, 2]] | j <- [0, 1, 2]]
@@ -65,4 +70,4 @@ adbwinpos = [[2*i+3| i <- [0, 1, 2]]]
 
 moveb :: (Int -> Int) -> CurPos -> CurPos
 moveb dir pos | dir (snd pos) == snd pos = (dir (fst pos), 1)
-              | otherwise              = (fst pos, dir (snd pos))
+              | otherwise                = (fst pos, dir (snd pos))
