@@ -7,11 +7,9 @@ import Data.Serialize
 import Network.Socket
 import Network.Socket.ByteString
 import Data.ByteString
+import Data.Char (chr)
 import qualified Control.Exception as E
 import qualified Data.ByteString.Char8 as C2
-import qualified Data.ByteString.Lazy as C
-import qualified Data.ByteString.Lazy.UTF8 as BLU
-
 
 --sendMsg :: Bytestring -> IO ()
     
@@ -40,19 +38,21 @@ parseBSAsMsgHeader receivedMsg =
                                             return (Left ("Header message has wrong type"))
                                         else return (Right msg)
 
+-- bsToString :: ByteString -> String
+-- bsToString = Prelude.map (chr . fromEnum) . C2.unpack
+
 
 readNByteString :: Socket -> Int -> IO ByteString
 readNByteString sock n = do
                             msg <- recv sock 1024
-                            let msgString = (bsToString (C.fromStrict msg)) in 
-                                let lengthLeft = n - (toInteger (length msgString)) in 
+                            let lengthLeft = n - (Data.ByteString.length msg) in 
                                 if (lengthLeft <= 0)
                                     then 
-                                    return (bsToString (C.fromStrict msg)) 
+                                    return (msg) 
                                     else
                                     do
-                                        ioresult <- (loop1 (lengthLeft) (sock))
-                                        return (C.toStrict ( BLU.fromString ((bsToString (C.fromStrict msg)) ++ ioresult)))
+                                        ioresult <- (readNByteString (sock) (lengthLeft))
+                                        return  (msg <> ioresult)
 
 
 readNextMsgFromNetwork :: Socket -> Int -> Int -> IO (Either String GeneralMsg)

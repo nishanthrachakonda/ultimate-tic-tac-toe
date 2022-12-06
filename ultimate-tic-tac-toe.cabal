@@ -35,6 +35,7 @@ executable ultimate-tic-tac-toe-client
   build-depends:
       base >=4.7 && <5
     , bytestring
+    , cereal
     , network >=2.6.1.0
     , utf8-string
   default-language: Haskell2010
@@ -51,6 +52,7 @@ executable ultimate-tic-tac-toe-server
   build-depends:
       base >=4.7 && <5
     , bytestring
+    , cereal
     , network >=2.6.1.0
     , utf8-string
   default-language: Haskell2010

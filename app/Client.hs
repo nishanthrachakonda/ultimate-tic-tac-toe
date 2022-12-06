@@ -22,54 +22,60 @@ import Data.Char (chr)
 -- import Network.Socket
 import Network.Socket.ByteString (recv, sendAll)
 import Data.String (String)
+import MsgTypes
 
 main :: IO ()
 main = runTCPClient "127.0.0.1" "4242" $ \s -> do
     putStrLn "Hi, what's your name?"
     name <- getLine
     putStrLn ("Hello " ++ name ++ "!")
-    hdl <- socketToHandle sock ReadWriteMode
-    hPutStrLn hdl (encode (ConnectMsg {connectMsgType = 2, connectMsgPlayerName = name}))
+    hdl <- socketToHandle s ReadWriteMode
+    hPutStrLn hdl (bsToString ( C.fromStrict (encode (ConnectMsg {connectMsgType = 2, connectMsgPlayerName = name}))))
     repeatingProcessIncoming s
     putStrLn "Disconnected. Thank you for playing !!"
 
 repeatingProcessIncoming :: Socket -> IO ()
 repeatingProcessIncoming s = do
-  serializedMsg <- processIncoming s
-    -- actualMsg <- decode serializedMsg
-  req <- case (head actualMsg) of 
-    "ACK"                     -> (handleACK actualMsg s) >> (repeatingProcessIncoming s)
-    "START"                   -> (handleStart actualMsg s) >> (repeatingProcessIncoming s)
-    "MOVE"                    -> (handleMove actualMsg s) >> (makeMove actualMsg s) >> (repeatingProcessIncoming s)
-    "DISCONNECT"              -> (handleDisconnect actualMsg s)
+  actualMsg <- readMsgFromNetwork s
+  -- case actualMsg of 
+
+  -- req <- case (actualMsg) of 
+  --   "ACK"                     -> (handleACK actualMsg s) >> (repeatingProcessIncoming s)
+  --   "START"                   -> (handleStart actualMsg s) >> (repeatingProcessIncoming s)
+  --   "MOVE"                    -> (handleMove actualMsg s) >> (makeMove actualMsg s) >> (repeatingProcessIncoming s)
+  --   "DISCONNECT"              -> (handleDisconnect actualMsg s)
   return ()
 
 
 handleDisconnect :: String -> Socket -> IO ()
 handleDisconnect st so = do 
-  putStrLn "Disconnecting, recieved the following message from the server - " ++ st
+  putStrLn ("Disconnecting, recieved the following message from the server - " ++ st)
   return ()
 
 handleACK :: String -> Socket -> IO ()
 handleACK st so = do
   putStrLn "Connected to the server : "
-  putStrLn "The server says : " ++ st
+  putStrLn ("The server says : " ++ st)
   return ()
 
 handleMove :: String -> Socket -> IO ()
 handleMove st so = do
   putStrLn "It's now your turn to move :"
-  let (x,y) = parseState tail actualMsg
-  putStrLn "You're allowed to move in the " ++ x ++ ", " ++y++ " grid."
+  let (x,y) = parseState tail st
+  putStrLn ("You're allowed to move in the " ++ x ++ ", " ++y++ " grid.")
   return ()
+
+handleStart st so = error "Will be done later"
+makeMove st so = error "Will be done later"
+parseState st msg = error "Will be done later"
 
 
 processIncoming :: Socket -> IO String
 processIncoming s = do
     msg <- recv s 1024
-    let decodedMsg = decode msg :: Either String MsgHeader    
-    let msg1 = filter isDigit (bsToString (C.fromStrict msg))
-    let msg2 = filter (isNotDigit) (bsToString (C.fromStrict msg))  
+    -- let decodedMsg = decode msg :: Either String MsgHeader    
+    let msg1 = filter isDigit (Client.bsToString (C.fromStrict msg))
+    let msg2 = filter (isNotDigit) (Client.bsToString (C.fromStrict msg))  
     let stringLength  = read (msg1) :: Int
     let stringLength2 = length (msg2)
     reqString <- loop1 (toInteger (stringLength - stringLength2)) s
@@ -79,16 +85,16 @@ processIncoming s = do
 loop1 :: Integer -> Socket -> IO String
 loop1 = \lengthRequired s -> do
   msg <- recv s 1024
-  putStr (show lengthRequired)
-  let msgString = (bsToString (C.fromStrict msg)) in 
+  --putStr (show lengthRequired)
+  let msgString = (Client.bsToString (C.fromStrict msg)) in 
     let lengthLeft = lengthRequired - (toInteger (length msgString)) in 
       if (lengthLeft <= 0)
         then 
-          return (bsToString (C.fromStrict msg)) 
+          return (Client.bsToString (C.fromStrict msg)) 
         else
           do
             ioresult <- (loop1 (lengthLeft) (s))
-            return ((bsToString (C.fromStrict msg)) ++ ioresult)
+            return ((Client.bsToString (C.fromStrict msg)) ++ ioresult)
 
 
 isNotDigit :: Char -> Bool
