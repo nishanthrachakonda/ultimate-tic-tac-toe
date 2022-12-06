@@ -69,5 +69,5 @@ left pos = if pos-1 >= 1
 
 right :: Position -> Position
 right pos = if pos+1 <= 9
-            then pos+9
+            then pos+1
             else pos
