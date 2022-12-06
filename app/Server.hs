@@ -4,6 +4,7 @@ import Network.Socket
 import System.IO
 import Control.Exception
 import Control.Concurrent
+    ( dupChan, newChan, readChan, writeChan, forkIO, killThread, Chan )
 import Control.Monad (when)
 import Control.Monad.Fix (fix)
 
@@ -11,41 +12,53 @@ main :: IO ()
 main = do
   sock <- socket AF_INET Stream 0
   setSocketOption sock ReuseAddr 1
-  bind sock (SockAddrInet 4242 0)
+  bind sock (SockAddrInet 24000 0)
   listen sock 2
-  chan <- newChan
-  _ <- forkIO $ fix $ \loop -> do
-    (_, _) <- readChan chan
-    loop
-  mainLoop sock chan 0
+  matchPlayers sock 1
 
 type Msg = (Int, String)
 
-mainLoop :: Socket -> Chan Msg -> Int -> IO ()
-mainLoop sock chan msgNum = do
-  conn <- accept sock
-  forkIO (runConn conn chan msgNum)
-  mainLoop sock chan $! msgNum + 1
+-- playerName :: Socket ->   -> IO ()
 
-runConn :: (Socket, SockAddr) -> Chan Msg -> Int -> IO ()
-runConn (sock, _) chan msgNum = do
-    let broadcast msg = writeChan chan (msgNum, msg)
+
+matchPlayers :: Socket -> Int -> IO ()
+matchPlayers sock playerID = do
+  -- Accepts 2 connection requests and 
+  -- Matches 2 players, and their gameplay is forked into another thread 
+  connPlayerOne <- accept sock
+  chanPlayerOne <- newChan
+  _ <- forkIO (runConn connPlayerOne chanPlayerOne (playerID) (playerID+1))
+  connPlayerTwo <- accept sock
+  chanPlayerTwo <- dupChan chanPlayerOne
+  _ <- forkIO (runConn connPlayerTwo chanPlayerTwo (playerID + 1) (playerID))
+
+  -- Match the next 2 players and so on
+  matchPlayers sock (playerID+2)
+
+
+runConn :: (Socket, SockAddr) -> Chan Msg -> Int -> Int -> IO ()
+runConn (sock, _) chan myID opponentID  = do
+
+    let broadcast msg = writeChan chan (myID, msg)
     hdl <- socketToHandle sock ReadWriteMode
     hSetBuffering hdl NoBuffering
 
-    let msgToSend = "Hello, what's your name?"
-    hPutStr hdl (show (length msgToSend))
-    hPutStrLn hdl "Hello, what's your name?"
-    name <- fmap init (hGetLine hdl)
+    -- hPutStrLn hdl "Hi, what's your name?"
+    name <- hGetLine hdl
+    -- something weird with name, need to essentially do (init (hGetLine hdl)) but hGetLine returns Monad, so 
+    -- fmap init (hGetLine hdl) is the way to do it. Why is init necessary?
+    -- name <- fmap init (hGetLine hdl)
     broadcast ("--> " ++ name ++ " entered chat.")
-    hPutStrLn hdl ("Welcome, " ++ name ++ "!")
-
-    commLine <- dupChan chan
+    hPutStrLn hdl ("Welcome, " ++ (init name) ++ "!")
 
     -- fork off a thread for reading from the duplicated channel
     reader <- forkIO $ fix $ \loop -> do
-        (nextNum, line) <- readChan commLine
-        when (msgNum /= nextNum) $ hPutStrLn hdl line
+        (playerID, line) <- readChan chan
+        putStrLn ("reader thread for " ++ (show myID) ++ ": " ++ (show playerID) ++ " " ++ line)
+        if (playerID == opponentID) 
+          then hPutStrLn hdl line
+          else 
+            when (playerID /= myID) (putStrLn ("reader thread for " ++ (show myID) ++ ": unexpected message from " ++ (show playerID) ++ " " ++ line ))
         loop
 
     handle (\(SomeException _) -> return ()) $ fix $ \loop -> do
