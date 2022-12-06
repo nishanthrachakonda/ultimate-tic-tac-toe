@@ -14,9 +14,11 @@ type Grid = Map.Map Int Value
 ----- / Actions
 -------------------------------
 
-putg :: Grid -> Int -> Value -> Status
-putg grid pos xo | isJust (Map.lookup pos grid) = Error
-                 | otherwise = Success (getGS (Map.insert pos xo grid))
+putg :: Grid -> Int -> Value -> (Status, Maybe (GridStatus, Grid))
+putg grid pos xo | isJust (Map.lookup pos grid) = (Error, Nothing)
+                 | otherwise = (Success, Just(getGS gridI, gridI))
+                               where
+                                gridI = Map.insert pos xo grid
 
 ----------------------------------
 ---- / State

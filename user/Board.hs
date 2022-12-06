@@ -17,13 +17,16 @@ init = Map.empty
 ----- / Actions
 -------------------------------
 
-putb :: Board -> Int -> CurPos -> Value -> Status
-putb board ppos pos value | not (validgrid ppos gridT (fst pos)) = Error 
-                          | otherwise                  = putg grid (snd pos) value
-                        where
-                          gridT = Map.lookup (fst pos) board
-                          grid  | isNothing gridT = Map.empty
-                                | otherwise       = snd (fromJust gridT)
+putb :: Board -> Int -> CurPos -> Value -> (Status, Maybe (GridStatus, Board)) 
+putb board ppos pos value | not (validgrid ppos gridT (fst pos)) = (Error, Nothing) 
+                          | fst gridI == Error = (Error, Nothing)
+                          | otherwise = (Success, Just(getbS boardI, boardI))
+                          where
+                              gridT = Map.lookup (fst pos) board
+                              grid  | isNothing gridT = Map.empty
+                                    | otherwise       = snd (fromJust gridT)
+                              gridI = putg grid (snd pos) value
+                              boardI = Map.insert (fst pos) (fromJust (snd gridI)) board  
 
 ----------------------------------
 ---- / State
