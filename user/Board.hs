@@ -7,19 +7,19 @@ import Utils
 -------------------------------
 ---- / Board
 -------------------------------
-type Board = Map.Map Position (GridStatus, Grid)
+type Board = Map.Map Int (GridStatus, Grid)
 
 -------------------------------
 ----- / Actions
 -------------------------------
 
-putb :: Board -> (Position, Position) -> Value -> Status
-putb board posT xo | state == Just Win X   = Error
-                   | state == Just Win O   = Error
-                   | state == Just Draw    = Error
-                   | otherwise             = putg grid (snd posT) xo
+putb :: Board -> CurPos -> Value -> Status
+putb board pos value | state == Just Win X = Error
+                     | state == Just Win O = Error
+                     | state == Just Draw  = Error
+                     | otherwise           = putg grid (snd pos) value
                   where
-                    gridT = Map.lookup (fst posT) board
+                    gridT = Map.lookup (fst pos) board
                     state = fst gridT
                     grid  = snd gridT
 
@@ -27,16 +27,16 @@ putb board posT xo | state == Just Win X   = Error
 ---- / State
 ----------------------------------
 getbS :: Board -> GridStatus
-getbS board | Map.size board == 9 = Draw
-            | isbWon board X = Win X
-            | isbWon board O = Win O
-            | otherwise = Ongoing
+getbS board | isbWon board X      = Win X
+            | isbWon board O      = Win O
+            | Map.size board == 9 = Draw
+            | otherwise           = Ongoing
 
 isbWon :: Board -> Value -> Bool
 isbWon board value = any and (winbpos board value)
 
 winbpos :: Board -> Value -> [[Bool]]
-winbpos board value = map (map (\x -> Map.lookup x board == Just value) ) (rwinpos ++ cwinpos ++ dwinpos ++ adwinpos)
+winbpos board value = map (map (\x -> Map.lookup x board == Just (value, _)) ) (rwinpos ++ cwinpos ++ dwinpos ++ adwinpos)
 
 rbwinpos :: [[Position]]
 rbwinpos = [[3*i+j+1 | i <- [0, 1, 2]] | j <- [0, 1, 2]]
@@ -54,22 +54,6 @@ adbwinpos = [[2*i+3| i <- [0, 1, 2]]]
 ---- / Moves
 ----------------------------------
 
-up :: Position -> Position
-up pos = if pos-3 >= 1
-            then pos-3
-            else pos
-
-down :: Position -> Position
-down pos = if pos+3 <= 9
-            then pos+3
-            else pos
-
-left :: Position -> Position
-left pos = if pos-1 >= 1
-            then pos-1
-            else pos
-
-right :: Position -> Position
-right pos = if pos+1 <= 9
-            then pos+1
-            else pos
+moveb :: (Int -> Int) -> Position -> Position
+moveb dir pos | dir snd pos == snd pos = (dir fst pos, 1)
+              | otherwise              = (fst pos, dir snd pos)

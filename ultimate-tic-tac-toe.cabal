@@ -53,12 +53,13 @@ test-suite ultimate-tic-tac-toe-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Paths_ultimate_tic_tac_toe
+      Utils,
+      Grid
   hs-source-dirs:
       test, user
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       HUnit
     , base >=4.7 && <5
-    , container
+    , containers
   default-language: Haskell2010

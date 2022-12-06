@@ -4,7 +4,7 @@ module Utils where
 ------------------------------
 ----- / Position
 ------------------------------
-type Position = Int
+type CurPos = (Int, Int)
 
 data GridStatus = Win Value | Draw | Ongoing
      deriving (Eq, Show)

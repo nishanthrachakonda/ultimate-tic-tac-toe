@@ -1,7 +1,3 @@
---main :: IO ()
---main = putStrLn "Test suite not yet implemented"
-
-
 import Test.HUnit
 import Grid
 import Utils
@@ -10,7 +6,7 @@ import System.Exit
 
 
 test1 :: Test
-test1 = TestCase (assertEqual "Insert X" (Success Draw) (putg Map.empty 3 X))
+test1 = TestCase (assertEqual "Insert X" (Success Ongoing) (putg Map.empty 3 X))
 
 test2 :: Test
 test2 = TestCase (assertEqual "Insert O" (Success Ongoing) (putg Map.empty 3 O))
@@ -46,28 +42,28 @@ test12 :: Test
 test12 = TestCase (assertEqual "Right 3" (4) (right 3))
 
 test13 :: Test
-test13 = TestCase (assertEqual "Insert into same position" (Error) (put (Map.fromList([(3,O)])) 3 O))
+test13 = TestCase (assertEqual "Insert into same position" (Error) (putg (Map.fromList([(3,O)])) 3 O))
 
 test14 :: Test
-test14 = TestCase (assertEqual "Insert into different position" (Success Ongoing) (put (Map.fromList([(3,O)])) 4 O))
+test14 = TestCase (assertEqual "Insert into different position" (Success Ongoing) (putg (Map.fromList([(3,O)])) 4 O))
 
 test15 :: Test
-test15 = TestCase (assertEqual "Draw scenario" (Success Draw) (put (Map.fromList([(1,X), (2,O), (3,X), (4,X), (5,O), (6,X), (7,O), (8,X)])) 9 O))
+test15 = TestCase (assertEqual "Draw scenario" (Success Draw) (putg (Map.fromList([(1,X), (2,O), (3,X), (4,X), (5,O), (6,X), (7,O), (8,X)])) 9 O))
 
 test16 :: Test
-test16 = TestCase (assertEqual "Win X - Row case" (Success (Win X)) (put (Map.fromList([(3,X), (1,X), (4,O), (5,O)])) 2 X))
+test16 = TestCase (assertEqual "Win X - Row case" (Success (Win X)) (putg (Map.fromList([(3,X), (1,X), (4,O), (5,O)])) 2 X))
 
 
 test17 :: Test
-test17 = TestCase (assertEqual "Win O - Column case" (Success (Win O)) (put (Map.fromList([(1,O), (2,X), (6,O), (8,X)])) 5 X))
+test17 = TestCase (assertEqual "Win O - Column case" (Success (Win X)) (putg (Map.fromList([(1,O), (2,X), (6,O), (8,X)])) 5 X))
 
 
 test18 :: Test
-test18 = TestCase (assertEqual "Win O - Diagonal case" (Success (Win O)) (put (Map.fromList([(1,O), (2,X), (3,X), (5,O)])) 9 O))
+test18 = TestCase (assertEqual "Win O - Diagonal case" (Success (Win O)) (putg (Map.fromList([(1,O), (2,X), (3,X), (5,O)])) 9 O))
 
 
 test19 :: Test
-test19 = TestCase (assertEqual "Win X - Anti Diagonal case" (Success (Win X)) (put (Map.fromList([(2,O), (3,X), (5,X), (6,O)])) 7 X))
+test19 = TestCase (assertEqual "Win X - Anti Diagonal case" (Success (Win X)) (putg (Map.fromList([(2,O), (3,X), (5,X), (6,O)])) 7 X))
 
 main :: IO ()
 main = do
