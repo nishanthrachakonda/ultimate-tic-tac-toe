@@ -48,6 +48,10 @@ executables:
     - utf8-string
     - network >= 2.6.1.0
     - cereal
+    - brick
+    - containers
+    - vty
+
   ultimate-tic-tac-toe-client:
     main-is:                Client.hs
     source-dirs:         app
@@ -61,9 +65,13 @@ executables:
     - utf8-string
     - network >= 2.6.1.0
     - cereal
+    - brick
+    - containers
+    - vty
+
   ultimate-tic-tac-toe-clientui:
     main-is:                Main.hs
-    source-dirs:         user
+    source-dirs:         app
     ghc-options:
     - -threaded
     - -rtsopts
