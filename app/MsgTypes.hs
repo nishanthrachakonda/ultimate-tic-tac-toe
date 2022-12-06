@@ -7,6 +7,10 @@ import Data.Serialize
 import Network.Socket
 import Network.Socket.ByteString
 import Data.ByteString
+import qualified Control.Exception as E
+import qualified Data.ByteString.Char8 as C2
+import qualified Data.ByteString.Lazy as C
+import qualified Data.ByteString.Lazy.UTF8 as BLU
 
 
 --sendMsg :: Bytestring -> IO ()
@@ -39,9 +43,16 @@ parseBSAsMsgHeader receivedMsg =
 
 readNByteString :: Socket -> Int -> IO ByteString
 readNByteString sock n = do
-                            receivedMsg <- recv sock 1024
-                            return receivedMsg
-
+                            msg <- recv sock 1024
+                            let msgString = (bsToString (C.fromStrict msg)) in 
+                                let lengthLeft = n - (toInteger (length msgString)) in 
+                                if (lengthLeft <= 0)
+                                    then 
+                                    return (bsToString (C.fromStrict msg)) 
+                                    else
+                                    do
+                                        ioresult <- (loop1 (lengthLeft) (sock))
+                                        return (C.toStrict ( BLU.fromString ((bsToString (C.fromStrict msg)) ++ ioresult)))
 
 
 readNextMsgFromNetwork :: Socket -> Int -> Int -> IO (Either String GeneralMsg)

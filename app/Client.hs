@@ -9,6 +9,7 @@ import Control.Concurrent
 import Control.Monad (when)
 import Control.Monad.Fix (fix)
 import Data.Char (isDigit)
+import Data.Serialize
 
 
 -- module Main (main) where
@@ -24,25 +25,56 @@ import Data.String (String)
 
 main :: IO ()
 main = runTCPClient "127.0.0.1" "4242" $ \s -> do
-    putStr "Connected: "
+    putStrLn "Hi, what's your name?"
+    name <- getLine
+    putStrLn ("Hello " ++ name ++ "!")
+    hdl <- socketToHandle sock ReadWriteMode
+    hPutStrLn hdl (encode (ConnectMsg {connectMsgType = 2, connectMsgPlayerName = name}))
+    repeatingProcessIncoming s
+    putStrLn "Disconnected. Thank you for playing !!"
 
+repeatingProcessIncoming :: Socket -> IO ()
+repeatingProcessIncoming s = do
+  serializedMsg <- processIncoming s
+    -- actualMsg <- decode serializedMsg
+  req <- case (head actualMsg) of 
+    "ACK"                     -> (handleACK actualMsg s) >> (repeatingProcessIncoming s)
+    "START"                   -> (handleStart actualMsg s) >> (repeatingProcessIncoming s)
+    "MOVE"                    -> (handleMove actualMsg s) >> (makeMove actualMsg s) >> (repeatingProcessIncoming s)
+    "DISCONNECT"              -> (handleDisconnect actualMsg s)
+  return ()
+
+
+handleDisconnect :: String -> Socket -> IO ()
+handleDisconnect st so = do 
+  putStrLn "Disconnecting, recieved the following message from the server - " ++ st
+  return ()
+
+handleACK :: String -> Socket -> IO ()
+handleACK st so = do
+  putStrLn "Connected to the server : "
+  putStrLn "The server says : " ++ st
+  return ()
+
+handleMove :: String -> Socket -> IO ()
+handleMove st so = do
+  putStrLn "It's now your turn to move :"
+  let (x,y) = parseState tail actualMsg
+  putStrLn "You're allowed to move in the " ++ x ++ ", " ++y++ " grid."
+  return ()
+
+
+processIncoming :: Socket -> IO String
+processIncoming s = do
     msg <- recv s 1024
-
-
+    let decodedMsg = decode msg :: Either String MsgHeader    
     let msg1 = filter isDigit (bsToString (C.fromStrict msg))
     let msg2 = filter (isNotDigit) (bsToString (C.fromStrict msg))  
     let stringLength  = read (msg1) :: Int
     let stringLength2 = length (msg2)
     reqString <- loop1 (toInteger (stringLength - stringLength2)) s
-    let msg3 = stringToBS (msg2 ++ reqString)
-    putStr "Received: "
-    C2.putStrLn (C.toStrict msg3)
-    -- display waiting 
-
---readMessage :: Socket -> IO String
---readMessage s = do{
---  
---}
+    let msg3 = msg2 ++ reqString
+    return msg3
 
 loop1 :: Integer -> Socket -> IO String
 loop1 = \lengthRequired s -> do
