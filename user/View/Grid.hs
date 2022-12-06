@@ -20,7 +20,7 @@ view :: PlayState -> [Widget String]
 view s = [view' s]
 
 view' :: PlayState -> Widget String
-view' s = mkBoard board
+view' s = vLimit 35 $ hLimit 130 $ mkBoard board
           where
             board = (Map.fromList([(1,(Ongoing,(Map.fromList([(4,X),(6,X),(9,O)])) )), (2,(Ongoing,(Map.fromList([(4,X), (5,O), (6,X)])) )), (6,(Ongoing,(Map.fromList([(4,X)])) )),(3,(Draw,(Map.fromList([(1,X), (2,O), (3,X), (4,X), (5,O), (6,X), (7,O), (8,X), (9,O)])) )), (8,(Draw,(Map.fromList([(1,X), (2,O), (3,X), (4,X), (5,O), (6,X), (7,O), (8,X), (9,O)])) )) ])) -- psBoard s
   -- withBorderStyle unicode $
@@ -42,7 +42,7 @@ withCursor = modifyDefAttr (`withStyle` reverseVideo)
 
 mkCell' :: Int -> Int -> Grid -> Widget n
 -- mkCell' _ r c = center (str (printf "(%d, %d)" r c))
-mkCell' r c g = center (mkValue xoMb)
+mkCell' r c g = center (hLimit 5 $ vLimit 3 $ (mkValue xoMb))
   where 
     xoMb      = Map.lookup ((r-1)*3+c) g
     -- xoMb 
@@ -60,7 +60,7 @@ mkBoard b = withBorderStyle unicode $
             vTile ([ mkgRow row b | row <- [1..3]])
 mkgRow :: Int -> Board -> Widget n
 --mkgRow row = hTile [ (padAll 2 (mkGrid Map.empty)) | i <- [1..3] ]
-mkgRow row b = hTile [ (padAll 2 (mkGrid (getGrid ((row-1)*3+i) b))) | i <- [1..3] ]
+mkgRow row b = hTile [ (padAll 2 (hLimit 40 $ mkGrid (getGrid ((row-1)*3+i) b))) | i <- [1..3] ]
        
 
 getGrid :: Int -> Board -> Grid
@@ -71,7 +71,7 @@ getGrid i b = grid
                        
 
 mkGrid ::  Grid -> Widget n
-mkGrid g = withBorderStyle unicode $
+mkGrid g = withBorderStyle unicode $ hLimit 40 $ vLimit 30 $
             vTile [ mkRow row g | row <- [1..3] ]
 
 
