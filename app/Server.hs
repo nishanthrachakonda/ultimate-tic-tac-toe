@@ -7,6 +7,7 @@ import Control.Concurrent
     ( dupChan, newChan, readChan, writeChan, forkIO, killThread, Chan )
 import Control.Monad (when)
 import Control.Monad.Fix (fix)
+import Data.Serialize
 
 main :: IO ()
 main = do

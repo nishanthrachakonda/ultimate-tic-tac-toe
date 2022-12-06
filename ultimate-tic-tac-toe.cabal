@@ -26,6 +26,7 @@ source-repository head
 executable ultimate-tic-tac-toe-client
   main-is: Client.hs
   other-modules:
+      MsgTypes
       Server
       Paths_ultimate_tic_tac_toe
   hs-source-dirs:
@@ -42,6 +43,7 @@ executable ultimate-tic-tac-toe-server
   main-is: Server.hs
   other-modules:
       Client
+      MsgTypes
       Paths_ultimate_tic_tac_toe
   hs-source-dirs:
       app
