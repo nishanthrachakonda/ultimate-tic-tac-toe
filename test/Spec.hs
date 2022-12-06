@@ -1,6 +1,7 @@
 import Test.HUnit
 import Grid
 import Utils
+import Board
 import qualified Data.Map as Map
 import System.Exit
 
@@ -55,7 +56,7 @@ test16 = TestCase (assertEqual "Win X - Row case" (Success (Win X)) (putg (Map.f
 
 
 test17 :: Test
-test17 = TestCase (assertEqual "Win O - Column case" (Success (Win X)) (putg (Map.fromList([(1,O), (2,X), (6,O), (8,X)])) 5 X))
+test17 = TestCase (assertEqual "Win X - Column case" (Success (Win X)) (putg (Map.fromList([(1,O), (2,X), (6,O), (8,X)])) 5 X))
 
 
 test18 :: Test
@@ -65,10 +66,46 @@ test18 = TestCase (assertEqual "Win O - Diagonal case" (Success (Win O)) (putg (
 test19 :: Test
 test19 = TestCase (assertEqual "Win X - Anti Diagonal case" (Success (Win X)) (putg (Map.fromList([(2,O), (3,X), (5,X), (6,O)])) 7 X))
 
+test20 :: Test
+test20 = TestCase (assertEqual "Special case of win in an almost draw" (Success (Win X)) (putg (Map.fromList([(1,X),(2,O), (3,O),(4,O),(5,X),(6,X), (7,X), (8,O)])) 9 X))
+
+test21 :: Test
+test21 = TestCase (assertEqual "Insert X in empty board" (Success Ongoing) (putb Map.empty 0 (1,3) X))
+
+test22 :: Test
+test22 = TestCase (assertEqual "Insert O in empty board" (Success Ongoing) (putb Map.empty 0 (4,7) O))
+
+test23 :: Test
+test23 = TestCase (assertEqual "Insert O in non-empty board" (Success Ongoing) (putb (Map.fromList([(6,(Ongoing,(Map.fromList([(4,X)])) ))])) 4 (4,7) O))
+
+test24 :: Test
+test24 = TestCase (assertEqual "Insert x in invalid grid (ppos != cur pos grid)" (Error) (putb (Map.fromList([(6,(Ongoing,(Map.fromList([(4,X)])) ))])) 4 (8,7) O))
+
+test25 :: Test
+test25 = TestCase (assertEqual "Insert X in Draw grid" (Error) (putb (Map.fromList([(6,(Ongoing,(Map.fromList([(4,X)])) )), (8,(Draw,(Map.fromList([(1,X), (2,O), (3,X), (4,X), (5,O), (6,X), (7,O), (8,X), (9,O)])) )) ])) 8 (8,7) X))
+
+test26 :: Test
+test26 = TestCase (assertEqual "Insert X in (Win X) grid" (Error) (putb (Map.fromList([(3,((Win X),(Map.fromList([(2,O), (3,X), (5,X), (6,O), (7,X)])) )),(6,(Ongoing,(Map.fromList([(4,X)])) )), (8,(Draw,(Map.fromList([(1,X), (2,O), (3,X), (4,X), (5,O), (6,X), (7,O), (8,X), (9,O)])) )) ])) 3 (3,2) X))
+
+test27 :: Test
+test27 = TestCase (assertEqual "Insert O in (Win O) grid" (Error) (putb (Map.fromList([(3,((Win X),(Map.fromList([(2,O), (3,X), (5,X), (6,O), (7,X)])) )),(5, ((Win O), (Map.fromList([(1,O), (2,X), (3,X), (5,O), (9,O)])) )), (6,(Ongoing,(Map.fromList([(4,X)])) )), (8,(Draw,(Map.fromList([(1,X), (2,O), (3,X), (4,X), (5,O), (6,X), (7,O), (8,X), (9,O)])) )) ])) 5 (5,9) O))
+
+test28 :: Test
+test28 = TestCase (assertEqual "Insert O in ongoing grid and wins" (Success (Win O)) (putb (Map.fromList([(3,((Win X),(Map.fromList([(2,O), (3,X), (5,X), (6,O), (7,X)])) )),(5, ((Ongoing), (Map.fromList([(1,O), (2,X), (3,X), (5,O)])) )), (6,(Ongoing,(Map.fromList([(4,X)])) )), (8,(Draw,(Map.fromList([(1,X), (2,O), (3,X), (4,X), (5,O), (6,X), (7,O), (8,X), (9,O)])) )) ])) 5 (5,9) O))
+
+test29 :: Test
+test29 = TestCase (assertEqual "Moveb up 4th grid" (4,1) (moveb up (4,4)))
+
+test30 :: Test
+test30 = TestCase (assertEqual "Moveb up 1st grid" (1,1) (moveb up (1,3)))
+
+test31 :: Test
+test31 = TestCase (assertEqual "Moveb up between grids" (2,1) (moveb up (5,3)))
+
 main :: IO ()
 main = do
     counts <- runTestTT ( test [
-        test1, test2, test3, test4, test5, test6, test7, test8, test9, test10, test11, test12, test13, test14, test15, test16, test17, test18, test19
+        test1, test2, test3, test4, test5, test6, test7, test8, test9, test10, test11, test12, test13, test14, test15, test16, test17, test18, test19, test20, test21, test22, test23, test24, test25, test26, test27, test28, test29, test30, test31
         ])
     if errors counts + failures counts == 0
         then exitSuccess
