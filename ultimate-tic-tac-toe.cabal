@@ -57,6 +57,7 @@ executable ultimate-tic-tac-toe-game
       ,Grid
       ,View
       ,Board
+      ,Control
   hs-source-dirs:
       user
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
