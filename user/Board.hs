@@ -15,10 +15,7 @@ type Board = Map.Map Int (GridStatus, Grid)
 -------------------------------
 
 putb :: Board -> Int -> CurPos -> Value -> Status
-putb board ppos pos value | state == Win X             = Error
-                          | state == Win O             = Error
-                          | state == Draw              = Error
-                          | not (validgrid ppos gridT) = Error 
+putb board ppos pos value | not (validgrid ppos gridT (fst pos)) = Error 
                           | otherwise                  = putg grid (snd pos) value
                         where
                           gridT = Map.lookup (fst pos) board
@@ -46,10 +43,10 @@ grideq :: Value -> Maybe (GridStatus, Grid) -> Bool
 grideq _ Nothing                   = False
 grideq value (Just (gridStatus, _))  = Win value == gridStatus
 
-validgrid :: Int -> Maybe (GridStatus, Grid) -> Bool
-validgrid _ Nothing                = True
-validgrid 0 _                      = True
-validgrid _ (Just (gridStatus, _)) = gridStatus == Ongoing
+validgrid :: Int -> Maybe (GridStatus, Grid) -> Int ->  Bool
+validgrid 0 _ _                      = True
+validgrid p Nothing c                = p == c
+validgrid p (Just (gridStatus, _)) c = gridStatus == Ongoing && p == c
 
 
 rbwinpos :: [[Int]]
