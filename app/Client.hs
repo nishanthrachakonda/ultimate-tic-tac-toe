@@ -20,93 +20,74 @@ import qualified Data.ByteString.Lazy as C
 import qualified Data.ByteString.Lazy.UTF8 as BLU
 import Data.Char (chr)
 -- import Network.Socket
-import Network.Socket.ByteString (recv, sendAll)
+import Network.Socket.ByteString (recv, sendAll, send)
 import Data.String (String)
 import MsgTypes
 
 main :: IO ()
-main = runTCPClient "127.0.0.1" "4242" $ \s -> do
+main = runTCPClient "127.0.0.1" "24000" $ \s -> do
     putStrLn "Hi, what's your name?"
     name <- getLine
     putStrLn ("Hello " ++ name ++ "!")
-    hdl <- socketToHandle s ReadWriteMode
-    hPutStrLn hdl (bsToString ( C.fromStrict (encode (ConnectMsg {connectMsgType = 2, connectMsgPlayerName = name}))))
-    repeatingProcessIncoming s
+    let playerMsg = (encode (ConnectMsg {connectMsgType = 2, connectMsgPlayerName = name}))
+    send s playerMsg 
+    repeatingProcessIncoming s (-1)
     putStrLn "Disconnected. Thank you for playing !!"
 
-repeatingProcessIncoming :: Socket -> IO ()
-repeatingProcessIncoming s = do
+repeatingProcessIncoming :: Socket -> Int -> IO ()
+repeatingProcessIncoming s playerNum = do
   actualMsg <- readMsgFromNetwork s
-  -- case actualMsg of 
-
-  -- req <- case (actualMsg) of 
-  --   "ACK"                     -> (handleACK actualMsg s) >> (repeatingProcessIncoming s)
-  --   "START"                   -> (handleStart actualMsg s) >> (repeatingProcessIncoming s)
-  --   "MOVE"                    -> (handleMove actualMsg s) >> (makeMove actualMsg s) >> (repeatingProcessIncoming s)
-  --   "DISCONNECT"              -> (handleDisconnect actualMsg s)
+  case actualMsg of 
+    Left s -> (putStrLn ("Unable to read the message, received a Left -> " ++ s)) >> return ()
+    Right (AkMsg msg) ->  do
+                            playerNum2 <- handleACK msg s playerNum
+                            repeatingProcessIncoming s playerNum2
+    Right (PdMsg msg) -> (handleStart msg s playerNum) >> (repeatingProcessIncoming s playerNum)
+    Right (MvMsg msg) -> (handleMove msg s playerNum) >> (repeatingProcessIncoming s playerNum)
+    Right (DcMsg msg) -> (handleDisconnect msg s playerNum)
+    otherwise       -> (putStrLn "Unable to read the msg received, you might've sent a connect msg by mistake ?") >> return()
   return ()
 
 
-handleDisconnect :: String -> Socket -> IO ()
-handleDisconnect st so = do 
-  putStrLn ("Disconnecting, recieved the following message from the server - " ++ st)
+handleDisconnect :: DisconnectMsg -> Socket -> Int -> IO ()
+handleDisconnect msg s playerNum = do 
+  putStrLn ("Disconnecting, recieved the following message from the server - " ++ (disconnectReason msg))
   return ()
 
-handleACK :: String -> Socket -> IO ()
-handleACK st so = do
-  putStrLn "Connected to the server : "
-  putStrLn ("The server says : " ++ st)
+handleACK :: AckMsg -> Socket -> Int -> IO Int
+handleACK msg s playerNumb = do
+  putStrLn "Connected to the server."
+  putStrLn "Waiting for 2 players to join."
+  putStrLn ("The server says : " ++ (ackString msg))
+  putStrLn ("You are player number " ++ (show (playerNum msg)))
+  return (playerNum msg)
+
+handleStart :: PairedMsg -> Socket -> Int -> IO ()
+handleStart msg s playerNum = do
+  putStrLn "We have 2 players ready and can now begin the game."
+  putStrLn ("You are facing off against " ++ (pairMsgOpponentName msg) ++ ". Have fun !")
   return ()
 
-handleMove :: String -> Socket -> IO ()
-handleMove st so = do
-  putStrLn "It's now your turn to move :"
-  let (x,y) = parseState tail st
-  putStrLn ("You're allowed to move in the " ++ x ++ ", " ++y++ " grid.")
+handleMove :: MoveMsg -> Socket -> Int -> IO ()
+handleMove msg s playerNum = do
+  putStrLn "Your opponent has made the following move."
+
+  --These two sections are TODO
+  ---------------------------------
+  --Print the grid after the opponents move.
+  putStrLn "GRID GRID GRID GRID GRID GRID"
+  ---------------------------------
+
+
+  ---------------------------------
+  --get the userinput for the move to be made.
+  let (gridNumber, x, y) = (1, 1, 1)
+  ---------------------------------
+
+
+  let myMove = (encode (MoveMsg {moveMsgType = 5, moveGridNum = gridNumber, moveGridRow = x, moveGridCol = y}))
+  send s myMove
   return ()
-
-handleStart st so = error "Will be done later"
-makeMove st so = error "Will be done later"
-parseState st msg = error "Will be done later"
-
-
-processIncoming :: Socket -> IO String
-processIncoming s = do
-    msg <- recv s 1024
-    -- let decodedMsg = decode msg :: Either String MsgHeader    
-    let msg1 = filter isDigit (Client.bsToString (C.fromStrict msg))
-    let msg2 = filter (isNotDigit) (Client.bsToString (C.fromStrict msg))  
-    let stringLength  = read (msg1) :: Int
-    let stringLength2 = length (msg2)
-    reqString <- loop1 (toInteger (stringLength - stringLength2)) s
-    let msg3 = msg2 ++ reqString
-    return msg3
-
-loop1 :: Integer -> Socket -> IO String
-loop1 = \lengthRequired s -> do
-  msg <- recv s 1024
-  --putStr (show lengthRequired)
-  let msgString = (Client.bsToString (C.fromStrict msg)) in 
-    let lengthLeft = lengthRequired - (toInteger (length msgString)) in 
-      if (lengthLeft <= 0)
-        then 
-          return (Client.bsToString (C.fromStrict msg)) 
-        else
-          do
-            ioresult <- (loop1 (lengthLeft) (s))
-            return ((Client.bsToString (C.fromStrict msg)) ++ ioresult)
-
-
-isNotDigit :: Char -> Bool
-isNotDigit c = not (isDigit c)
-
-
-bsToString :: C.ByteString -> String
-bsToString = map (chr . fromEnum) . C.unpack
-
-stringToBS :: String -> C.ByteString
-stringToBS str = BLU.fromString str
-
 
 
 -- from the "network-run" package.
