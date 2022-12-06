@@ -47,6 +47,7 @@ executables:
     - bytestring
     - utf8-string
     - network >= 2.6.1.0
+    - cereal
   ultimate-tic-tac-toe-client:
     main-is:                Client.hs
     source-dirs:         app
@@ -59,6 +60,7 @@ executables:
     - bytestring
     - utf8-string
     - network >= 2.6.1.0
+    - cereal
 
 tests:
   ultimate-tic-tac-toe-test:

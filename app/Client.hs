@@ -39,10 +39,10 @@ main = runTCPClient "127.0.0.1" "4242" $ \s -> do
     C2.putStrLn (C.toStrict msg3)
     -- display waiting 
 
-readMessage :: Socket -> IO String
-readMessage s = do{
-  
-}
+--readMessage :: Socket -> IO String
+--readMessage s = do{
+--  
+--}
 
 loop1 :: Integer -> Socket -> IO String
 loop1 = \lengthRequired s -> do
