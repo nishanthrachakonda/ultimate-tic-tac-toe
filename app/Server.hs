@@ -71,6 +71,7 @@ processMsgHelper sock playerID (ConnMsg a) ismyself =
                                                               let turn = 2 - (playerID `mod` 2)
                                                               let msg = encode (AckMsg 3 ("Welcome, player " ++ show turn) turn)
                                                               let header = encode (MsgHeader 1 (Data.ByteString.length msg) 3)
+                                                              putStrLn ("Sent ack message to " ++ show playerID)
                                                               send sock header
                                                               send sock msg
                                                               if (turn == 2)
@@ -80,6 +81,7 @@ processMsgHelper sock playerID (ConnMsg a) ismyself =
                                                                     let header2 = encode (MsgHeader 1 (Data.Bytestring.length msg2) 4)
                                                                     send sock header2
                                                                     send sock msg2
+                                                                    putStrLn ("Sent pair message to " ++ show playerID)
                                                                     return ()        
                                                                     
                                                                 else return ()
@@ -89,6 +91,7 @@ processMsgHelper sock playerID (ConnMsg a) ismyself =
                                                              let header2 = encode (MsgHeader 1 (Data.Bytestring.length msg2) 4)
                                                              send sock header2
                                                              send sock msg2
+                                                             putStrLn ("Sent pair message to opponent of " ++ show playerID)
                                                              return ()        
 
 processMsgHelper sock playerID (AkMsg a) ismyself = do 
@@ -122,9 +125,9 @@ runConn (sock, _) chan myID opponentID  = do
 
     let broadcast msg = writeChan chan (myID, msg)
 
-    reader <- forkIO $ fix $ \loop -> do
+    reader <- forkIO $ fix $ \loop -> (do
         (playerID, msg) <- readChan chan
-        putStrLn ("reader thread for " ++ (show myID) ++ ": " ++ (show playerID) ++ " ")
+        -- putStrLn ("reader thread for " ++ (show myID) ++ ": " ++ (show playerID) ++ " ")
         if (playerID == opponentID) 
           then 
              do 
@@ -149,7 +152,7 @@ runConn (sock, _) chan myID opponentID  = do
                         (processMsg playerID msgtype sock realmsg True)
 
             else (putStrLn ("reader thread for " ++ (show myID) ++ ": unexpected message from " ++ (show playerID) ++ " "))
-        loop
+        loop)
 
     handle (\(SomeException _) -> return ()) $ fix $ \loop -> do
         res <- readAllFromNetwork sock

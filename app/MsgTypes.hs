@@ -16,7 +16,9 @@ import qualified Data.ByteString.Char8 as C2
 
 readAllFromNetwork :: Socket -> IO (Either String (ByteString, ByteString))
 readAllFromNetwork sock = do
-                            receivedMsg <- recv sock 1024
+                            let dummyhdr = encode (MsgHeader 0 0 0)
+                            receivedMsg <- recv sock (Data.ByteString.length dummyhdr)
+                            Prelude.putStrLn ("Received "  ++ show (Data.ByteString.length receivedMsg) ++ " bytes")
                             let msg1 = (decode receivedMsg) :: Either String MsgHeader
                             case msg1 of 
                                 Left s -> return (Left ("Error parsing header message: " ++ s))
@@ -25,6 +27,7 @@ readAllFromNetwork sock = do
                                                  return (Left ("Header message has wrong type"))
                                                else 
                                                  do
+                                                    Prelude.putStrLn ("Reading " ++ show (msgLen msg) ++ " bytes")
                                                     msg2 <- readNByteString sock (msgLen msg)
                                                     return (Right (receivedMsg, msg2))
 
@@ -32,7 +35,8 @@ readAllFromNetwork sock = do
 
 readMsgFromNetwork :: Socket -> IO (Either String GeneralMsg)
 readMsgFromNetwork sock = do
-                            receivedMsg <- recv sock 1024
+                            let dummyhdr = encode (MsgHeader 0 0 0)
+                            receivedMsg <- recv sock (Data.ByteString.length dummyhdr)
                             let msg1 = (decode receivedMsg) :: Either String MsgHeader
                             case msg1 of 
                                 Left s -> return (Left ("Error parsing header message: " ++ s))
@@ -59,15 +63,15 @@ parseBSAsMsgHeader receivedMsg =
 
 readNByteString :: Socket -> Int -> IO ByteString
 readNByteString sock n = do
-                            msg <- recv sock 1024
-                            let lengthLeft = n - (Data.ByteString.length msg) in 
-                                if (lengthLeft <= 0)
-                                    then 
-                                    return (msg) 
-                                    else
-                                    do
-                                        ioresult <- (readNByteString (sock) (lengthLeft))
-                                        return  (msg <> ioresult)
+                            msg <- recv sock n
+                            let lengthLeft = n - (Data.ByteString.length msg)
+                            if (lengthLeft <= 0)
+                              then 
+                                return (msg) 
+                            else
+                              do
+                                ioresult <- (readNByteString (sock) (lengthLeft))
+                                return  (msg <> ioresult)
 
 
 readNextMsgFromNetwork :: Socket -> Int -> Int -> IO (Either String GeneralMsg)
