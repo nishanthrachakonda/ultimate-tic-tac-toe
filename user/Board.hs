@@ -3,7 +3,7 @@ module Board where
 import qualified Data.Map as Map
 import Grid
 import Utils
-import Data.Maybe
+import Data.Maybe 
 
 -------------------------------
 ---- / Board

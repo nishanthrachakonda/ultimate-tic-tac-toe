@@ -12,13 +12,13 @@ import Grid
 
 -------------------------------------------------------------------------------
 
-control :: Model.PlayState -> BrickEvent n Model.Tick -> EventM n (Next Model.PlayState)
+control :: Model.PlayState -> BrickEvent n Tick -> EventM n (Next Model.PlayState)
 control s ev = case ev of 
   -- T.VtyEvent (V.EvKey V.KEnter _) -> nextGameS s =<< liftIO (play s)
-  T.VtyEvent (V.EvKey V.KUp   _)  -> continue (move Grid.up    (psCur s))
-  T.VtyEvent (V.EvKey V.KDown _)  -> continue (move Grid.down  (psCur s))
-  T.VtyEvent (V.EvKey V.KLeft _)  -> continue (move Grid.left  (psCur s))
-  T.VtyEvent (V.EvKey V.KRight _) -> continue (move Grid.right (psCur s))
+  T.VtyEvent (V.EvKey V.KUp   _)  -> continue (move Grid.up    s)
+  T.VtyEvent (V.EvKey V.KDown _)  -> continue (move Grid.down  s)
+  T.VtyEvent (V.EvKey V.KLeft _)  -> continue (move Grid.left  s)
+  T.VtyEvent (V.EvKey V.KRight _) -> continue (move Grid.right s)
   T.VtyEvent (V.EvKey V.KEsc _)   -> halt s
   _                               -> continue s -- Brick.halt s
 
@@ -27,10 +27,10 @@ move :: (Int -> Int) -> Model.PlayState -> Model.PlayState
 -------------------------------------------------------------------------------
 move f s = s { psCur = moveb f (psCur s) }
 
--------------------------------------------------------------------------------
-play :: Model.PlayState -> Utils.Status Board.Board
--------------------------------------------------------------------------------
-play s = put (psBoard s) X (psCur s)
+-- -------------------------------------------------------------------------------
+-- play :: Model.PlayState -> Utils.Status Board.Board
+-- -------------------------------------------------------------------------------
+-- play s = put (psBoard s) X (psCur s)
 
 -- -------------------------------------------------------------------------------
 -- nextGameS :: Model.PlayState -> Utils.Status -> EventM n (Next Model.PlayState)
