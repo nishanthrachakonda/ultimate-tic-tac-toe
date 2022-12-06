@@ -10,6 +10,9 @@ import Control.Concurrent (threadDelay, forkIO)
 import Model
 import View 
 import Control 
+import System.Environment (getArgs)
+import Text.Read (readMaybe)
+import Data.Maybe (fromMaybe)
 
 -------------------------------------------------------------------------------
 main :: IO ()
