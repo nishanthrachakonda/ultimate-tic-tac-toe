@@ -15,11 +15,11 @@ type Board = Map.Map Int (GridStatus, Grid)
 -------------------------------
 
 putb :: Board -> Int -> CurPos -> Value -> Status
-putb board ppos pos value | state == Win X        = Error
-                           | state == Win O       = Error
-                           | state == Draw        = Error
-                           | validgrid ppos gridT = Error 
-                           | otherwise            = putg grid (snd pos) value
+putb board ppos pos value | state == Win X             = Error
+                          | state == Win O             = Error
+                          | state == Draw              = Error
+                          | not (validgrid ppos gridT) = Error 
+                          | otherwise                  = putg grid (snd pos) value
                         where
                           gridT = Map.lookup (fst pos) board
                           state | isNothing gridT = Ongoing
