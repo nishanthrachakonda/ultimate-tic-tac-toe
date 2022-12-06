@@ -2,12 +2,20 @@ module Server where
 
 import Network.Socket
 import System.IO
-import Control.Exception
+    ( hClose,
+      hSetBuffering,
+      hGetLine,
+      hPutStrLn,
+      BufferMode(NoBuffering),
+      IOMode(ReadWriteMode) )
+import Control.Exception ( SomeException(SomeException), handle )
 import Control.Concurrent
     ( dupChan, newChan, readChan, writeChan, forkIO, killThread, Chan )
 import Control.Monad (when)
 import Control.Monad.Fix (fix)
 import Data.Serialize
+import MsgTypes (ConnectMsg, AckMsg, MoveMsg, DisconnectMsg)
+import Data.ByteString (ByteString)
 
 main :: IO ()
 main = do
@@ -17,7 +25,8 @@ main = do
   listen sock 2
   matchPlayers sock 1
 
-type Msg = (Int, String)
+type ChanMsg = (Int, ByteString)
+-- data Msg = ConnectMsg | AckMsg | PairedMsg | MoveMsg | DisconnectMsg
 
 -- playerName :: Socket ->   -> IO ()
 
@@ -37,39 +46,35 @@ matchPlayers sock playerID = do
   matchPlayers sock (playerID+2)
 
 
-runConn :: (Socket, SockAddr) -> Chan Msg -> Int -> Int -> IO ()
+runConn :: (Socket, SockAddr) -> Chan ChanMsg -> Int -> Int -> IO ()
 runConn (sock, _) chan myID opponentID  = do
 
     let broadcast msg = writeChan chan (myID, msg)
-    hdl <- socketToHandle sock ReadWriteMode
-    hSetBuffering hdl NoBuffering
+    --hdl <- socketToHandle sock ReadWriteMode
+    --hSetBuffering hdl NoBuffering
+    
+    
+    --name <- hGetLine hdl
+    -- broadcast ("--> " ++ name ++ " entered chat.")
+    -- hPutStrLn hdl ("Welcome, " ++ (init name) ++ "!")
 
-    -- hPutStrLn hdl "Hi, what's your name?"
-    name <- hGetLine hdl
-    -- something weird with name, need to essentially do (init (hGetLine hdl)) but hGetLine returns Monad, so 
-    -- fmap init (hGetLine hdl) is the way to do it. Why is init necessary?
-    -- name <- fmap init (hGetLine hdl)
-    broadcast ("--> " ++ name ++ " entered chat.")
-    hPutStrLn hdl ("Welcome, " ++ (init name) ++ "!")
-
-    -- fork off a thread for reading from the duplicated channel
     reader <- forkIO $ fix $ \loop -> do
         (playerID, line) <- readChan chan
-        putStrLn ("reader thread for " ++ (show myID) ++ ": " ++ (show playerID) ++ " " ++ line)
-        if (playerID == opponentID) 
-          then hPutStrLn hdl line
-          else 
-            when (playerID /= myID) (putStrLn ("reader thread for " ++ (show myID) ++ ": unexpected message from " ++ (show playerID) ++ " " ++ line ))
+        --putStrLn ("reader thread for " ++ (show myID) ++ ": " ++ (show playerID) ++ " " ++ line)
+        --if (playerID == opponentID) 
+        --  then hPutStrLn hdl line
+        --  else 
+        --    when (playerID /= myID) (putStrLn ("reader thread for " ++ (show myID) ++ ": unexpected message from " ++ (show playerID) ++ " " ++ line ))
         loop
 
-    handle (\(SomeException _) -> return ()) $ fix $ \loop -> do
-        line <- fmap init (hGetLine hdl)
-        case line of
+    --handle (\(SomeException _) -> return ()) $ fix $ \loop -> do
+        --line <- fmap init (hGetLine hdl)
+        --case line of
              -- If an exception is caught, send a message and break the loop
-             "quit" -> hPutStrLn hdl "Bye!"
+        --     "quit" -> hPutStrLn hdl "Bye!"
              -- else, continue looping.
-             _      -> broadcast (name ++ ": " ++ line) >> loop
+        --     _      -> broadcast (name ++ ": " ++ line) >> loop
 
     killThread reader                      -- kill after the loop ends
-    broadcast ("<-- " ++ name ++ " left.") -- make a final broadcast
-    hClose hdl                             -- close the handle
+    -- broadcast ("<-- " ++ name ++ " left.") -- make a final broadcast
+    -- hClose hdl                             -- close the handle
