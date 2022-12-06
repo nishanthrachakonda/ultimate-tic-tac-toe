@@ -2,6 +2,7 @@
 module Model where 
 
 import Prelude
+import Utils
 
 import Board
 
@@ -25,5 +26,5 @@ data PlayState = PS
 data Player = Local | Server
   deriving (Eq)
 
-isCurr :: PlayState -> CurPos -> Bool
-isCurr ps cp = (psCur s) == c
+isCurr :: PlayState -> Utils.CurPos -> Bool
+isCurr ps cp = (psCur ps) == cp
