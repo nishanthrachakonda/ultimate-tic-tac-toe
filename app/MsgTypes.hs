@@ -14,6 +14,20 @@ import qualified Data.ByteString.Char8 as C2
 --sendMsg :: Bytestring -> IO ()
     
 
+readAllFromNetwork :: Socket -> IO (Either String (ByteString, ByteString))
+readAllFromNetwork sock = do
+                            receivedMsg <- recv sock 1024
+                            let msg1 = (decode receivedMsg) :: Either String MsgHeader
+                            case msg1 of 
+                                Left s -> return (Left ("Error parsing header message: " ++ s))
+                                Right msg -> if (msgHeaderType msg /= 1) 
+                                               then 
+                                                 return (Left ("Header message has wrong type"))
+                                               else 
+                                                 do
+                                                    msg2 <- readNByteString sock (msgLen msg)
+                                                    return (Right (receivedMsg, msg2))
+
 
 
 readMsgFromNetwork :: Socket -> IO (Either String GeneralMsg)
@@ -42,6 +56,7 @@ parseBSAsMsgHeader receivedMsg =
 -- bsToString = Prelude.map (chr . fromEnum) . C2.unpack
 
 
+
 readNByteString :: Socket -> Int -> IO ByteString
 readNByteString sock n = do
                             msg <- recv sock 1024
@@ -59,6 +74,12 @@ readNextMsgFromNetwork :: Socket -> Int -> Int -> IO (Either String GeneralMsg)
 readNextMsgFromNetwork sock msgtype msglen = 
                               do
                                 receivedMsg <- readNByteString sock msglen
+                                (parseBSAsGeneralMsg receivedMsg msgtype)
+
+
+parseBSAsGeneralMsg :: ByteString -> Int -> IO (Either String GeneralMsg)
+parseBSAsGeneralMsg receivedMsg msgtype = 
+                            do
                                 if (msgtype == 2)
                                   then
                                         do
