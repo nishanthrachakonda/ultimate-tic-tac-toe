@@ -1,4 +1,9 @@
 Test suite ultimate-tic-tac-toe-test: RUNNING...
-Cases: 1  Tried: 0  Errors: 0  Failures: 0                                          Cases: 1  Tried: 1  Errors: 0  Failures: 0
-Test suite ultimate-tic-tac-toe-test: PASS
+Cases: 2  Tried: 0  Errors: 0  Failures: 0                                          ### Failure in: 0
+test/Spec.hs:14
+Insert X
+expected: Success Draw
+ but got: Success Ongoing
+Cases: 2  Tried: 1  Errors: 0  Failures: 1                                          Cases: 2  Tried: 2  Errors: 0  Failures: 1
+Test suite ultimate-tic-tac-toe-test: FAIL
 Test suite logged to: /Users/nishanthrachakonda/Desktop/Academics/CSE230/Project/ultimate-tic-tac-toe/dist-newstyle/build/x86_64-osx/ghc-9.2.4/ultimate-tic-tac-toe-0.1.0.0/t/ultimate-tic-tac-toe-test/test/ultimate-tic-tac-toe-0.1.0.0-ultimate-tic-tac-toe-test.log

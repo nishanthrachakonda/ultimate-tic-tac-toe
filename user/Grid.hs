@@ -14,16 +14,15 @@ type Grid = Map.Map Position Value
 ----- / Actions
 -------------------------------
 
-put :: Grid -> Position -> Value -> Status
-put grid pos xo | isJust (Map.lookup pos grid) = Error
-                | otherwise = Success (getS (Map.insert pos xo grid))
-
+putg :: Grid -> Position -> Value -> Status
+putg grid pos xo | isJust (Map.lookup pos grid) = Error
+                 | otherwise = Success (getGS (Map.insert pos xo grid))
 
 ----------------------------------
 ---- / State
 ----------------------------------
-getS :: Grid -> GridStatus
-getS grid | Map.size grid == 9 = Draw
+getGS :: Grid -> GridStatus
+getGS grid | Map.size grid == 9 = Draw
           | isWon grid X = Win X
           | isWon grid O = Win O
           | otherwise = Ongoing
@@ -45,8 +44,6 @@ dwinpos = [[4*i+1| i <- [0, 1, 2]]]
 
 adwinpos :: [[Position]]
 adwinpos = [[2*i+3| i <- [0, 1, 2]]]
-
--- >>> 
 
 ----------------------------------
 ---- / Moves
