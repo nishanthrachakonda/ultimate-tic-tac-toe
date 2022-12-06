@@ -16,11 +16,12 @@ data Tick = Tick
 -------------------------------------------------------------------------------
   
 data PlayState = PS
-  { psX      :: Player   -- ^ player R info
-  , psO      :: Player   -- ^ player B info
-  , psBoard  :: Board.Board     -- ^ current board
-  , psTurn   :: Utils.Value     -- ^ whose turn 
-  , psCur    :: Utils.CurPos    -- ^ current cursor
+  { psX      :: Player 
+  , psO      :: Player 
+  , psBoard  :: Board     
+  , psTurn   :: Value     
+  , psCur    :: CurPos    
+  , psPos    :: Int
   }
 
 init :: PlayState
@@ -29,7 +30,8 @@ init = PS {
     psO = Server,
     psBoard = Board.init,
     psTurn = X,
-    psCur = (1, 1)
+    psCur = (1, 1),
+    psPos = 0
 }
 
 data Player = Local | Server

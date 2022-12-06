@@ -9,12 +9,14 @@ import Board
 import Model
 import Utils
 import Grid
+import Data.Maybe 
+import Debug.Trace (trace)
 
 -------------------------------------------------------------------------------
 
-control :: Model.PlayState -> BrickEvent n Tick -> EventM n (Next Model.PlayState)
+control :: PlayState -> BrickEvent n Tick -> EventM n (Next PlayState)
 control s ev = case ev of 
-  -- T.VtyEvent (V.EvKey V.KEnter _) -> nextGameS s =<< liftIO (play s)
+  T.VtyEvent (V.EvKey V.KEnter _) -> nextGameS s (play s)
   T.VtyEvent (V.EvKey V.KUp   _)  -> continue (move Grid.up    s)
   T.VtyEvent (V.EvKey V.KDown _)  -> continue (move Grid.down  s)
   T.VtyEvent (V.EvKey V.KLeft _)  -> continue (move Grid.left  s)
@@ -23,18 +25,18 @@ control s ev = case ev of
   _                               -> continue s -- Brick.halt s
 
 -------------------------------------------------------------------------------
-move :: (Int -> Int) -> Model.PlayState -> Model.PlayState
+move :: (Int -> Int) -> PlayState -> PlayState
 -------------------------------------------------------------------------------
 move f s = s { psCur = moveb f (psCur s) }
 
--- -------------------------------------------------------------------------------
--- play :: Model.PlayState -> Utils.Status Board.Board
--- -------------------------------------------------------------------------------
--- play s = put (psBoard s) X (psCur s)
+-------------------------------------------------------------------------------
+play :: PlayState -> (Status, Maybe (GridStatus, Board))
+-------------------------------------------------------------------------------
+play s = putb (psBoard s) (psPos s) (psCur s) (psTurn s)
 
--- -------------------------------------------------------------------------------
--- nextGameS :: Model.PlayState -> Utils.Status -> EventM n (Next Model.PlayState)
--- -------------------------------------------------------------------------------
--- nextGameS p s r = case r of
---   Utils.Error  -> continue s { state = (Play p) }
---   Utils.Success _ -> continue s { state = (Play $ p {psBoard = b, psTurn = (Board.flipXO $ psTurn p)}) }
+-------------------------------------------------------------------------------
+nextGameS :: PlayState -> (Status, Maybe (GridStatus, Board)) -> EventM n (Next PlayState)
+-------------------------------------------------------------------------------
+nextGameS p s = case s of
+  (Error, _)  -> continue p
+  (Success, _) -> continue p {psPos = snd (psCur p), psBoard = snd(fromJust (snd s)), psTurn = (Board.flipXO $ psTurn p)}
