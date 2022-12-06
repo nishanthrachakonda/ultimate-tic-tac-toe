@@ -19,8 +19,6 @@ putb board ppos pos value | not (validgrid ppos gridT (fst pos)) = Error
                           | otherwise                  = putg grid (snd pos) value
                         where
                           gridT = Map.lookup (fst pos) board
-                          state | isNothing gridT = Ongoing
-                                | otherwise       = fst (fromJust gridT)
                           grid  | isNothing gridT = Map.empty
                                 | otherwise       = snd (fromJust gridT)
 
