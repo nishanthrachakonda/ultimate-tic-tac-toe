@@ -26,7 +26,7 @@ view' s =
     joinBorders $ withBorderStyle unicode $
     borderWithLabel (changeColor (psTurn s) (str (header s))) $
   --  vLimitPercent 90 $
-    hLimitPercent 70 $
+    hLimitPercent 60 $
     (mkBoard s board)
           where
             board = psBoard s
@@ -84,7 +84,7 @@ withCursor :: Widget n -> Widget n
 withCursor = modifyDefAttr (`withStyle` reverseVideo)
 
 mkCell' :: CurPos -> Grid -> Widget n
-mkCell' cp g = center (hLimit 5 $ vLimit 3 $ (mkValue v))
+mkCell' cp g = center (hLimit 1 $ vLimit 3 $ (mkValue v))
   where 
     v      = Map.lookup (snd cp) g
 
@@ -113,7 +113,7 @@ view_vp s =
     withBorderStyle unicode $
     borderWithLabel (changeColor (psTurn s) (str (header_vp s))) $
     vLimitPercent 90 $
-    (padAll 5 (mkVPane s whoseTurn currPosition))
+     (mkVPane s whoseTurn currPosition)
           where
             whoseTurn = psTurn s
             currPosition = psCur s
@@ -148,11 +148,11 @@ view_hp :: PlayState -> Widget String
 view_hp s = 
     withBorderStyle unicode $
     borderWithLabel (changeColor (psTurn s) (str (header_hp s))) $
-    center (padAll 2 (displayServerMessage ("SERVER MESSAGE")))  -- psMessage s
+    center (displayServerMessage (psMessage s))  -- psMessage s
 
 displayServerMessage :: String -> Widget n
 displayServerMessage "" = emptyWidget
-displayServerMessage m  = (str m)
+displayServerMessage m  = (strWrap m)
 
 header_hp :: PlayState -> String
 header_hp s = "Network Messages"
