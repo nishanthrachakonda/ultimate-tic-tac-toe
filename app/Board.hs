@@ -61,9 +61,9 @@ grideq value (Just (gridStatus, _))  = Win value == gridStatus
 
 validgrid :: Int -> Maybe (GridStatus, Grid) -> Maybe (GridStatus, Grid) -> Int ->  Bool
 validgrid 0 _ _ _                    = True
-validgrid p Nothing _ c              = p == c
 validgrid p _ Nothing c              = p == c
 validgrid p _ (Just (Ongoing, _)) c  = p == c
+validgrid _ Nothing (Just (gridS1, _)) _ = gridS1 /= Ongoing
 validgrid _ (Just (gridS1, _)) (Just (gridS2, _)) _  = (gridS1 == Ongoing) && (gridS2 /= Ongoing)
 
 
