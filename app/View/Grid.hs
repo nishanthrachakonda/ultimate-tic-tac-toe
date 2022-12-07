@@ -1,7 +1,7 @@
 module View.Grid (view) where
 
 import Brick
-import Brick.Widgets.Center (center)
+import Brick.Widgets.Center
 import Brick.Widgets.Border (borderWithLabel, hBorder, vBorder)
 import Brick.Widgets.Border.Style (unicode)
 import Text.Printf (printf)
@@ -18,14 +18,14 @@ import Graphics.Vty hiding (dim)
 view :: PlayState -> [Widget String]
 -------------------------------------------------------------------------------
 view s = [v]
-        where v = (((view' s) <+> (view_vp s)) <=> (view_hp s))
+      where v = ((view' s) <+> ((view_vp s) <=> (view_hp s) ))
 
 view' :: PlayState -> Widget String
 
 view' s = 
-    withBorderStyle unicode $
+    joinBorders $ withBorderStyle unicode $
     borderWithLabel (changeColor (psTurn s) (str (header s))) $
-    vLimitPercent 90 $
+  --  vLimitPercent 90 $
     hLimitPercent 70 $
     (mkBoard s board)
           where
@@ -113,31 +113,46 @@ view_vp s =
     withBorderStyle unicode $
     borderWithLabel (changeColor (psTurn s) (str (header_vp s))) $
     vLimitPercent 90 $
-    (padAll 5 (mkPane s whoseTurn currPosition))
+    (padAll 5 (mkVPane s whoseTurn currPosition))
           where
             whoseTurn = psTurn s
             currPosition = psCur s
  
-mkPane :: PlayState -> Value -> CurPos -> Widget n
-mkPane s whoseTurn currPosition = withBorderStyle unicode $
-              (padAll 5 (vTile ([playerName, turn, gameStatus])))
+mkVPane :: PlayState -> Value -> CurPos -> Widget n
+mkVPane s whoseTurn currPosition = withBorderStyle unicode $
+              (padAll 5 (vTile ([playerName, turn, gameStatus, gameResult])))
               where 
                 playerName = (str "Player :") <+> (str "X or O") 
-                turn = (str "Current Turn :")  -- <+> (str <$> whoseTurn)
+                turn = (str "Current Turn :") <+> (str "whoseTurn")
                 gameStatus = (str "Game Status :") <+> (str "Ongoing")
+                gameResult | "Ongoing" == "Ongoing" = (hCenter (vBox ([str "X won"])))
+                           | "Ongoing" == "Win O" = (str "O won")
+                           | "Ongoing" == "Draw"  = (str "Draw")
+                           | otherwise = emptyWidget
 
+--gameResult :: GridStatus -> Widget n
+--gameResult stat | stat == Win X    = (printResultWidget "X won")
+--                | stat == Win O    = (printResultWidget "O won")
+--                | stat == "Draw"   = (printResultWidget "Draw")
+--                | otherwise = emptyWidget
+
+-- printResultWidget :: String -> Widget n
+-- printResultWidget res = (hCenter (vBox ([str res])))
+
+ 
 header_vp :: PlayState -> String
 header_vp s = "Game Statistics"
 
 
 view_hp :: PlayState -> Widget String
-
 view_hp s = 
     withBorderStyle unicode $
     borderWithLabel (changeColor (psTurn s) (str (header_hp s))) $
-    vLimitPercent 10 $
-    (str "###")
-  --  (gamePane s)
+    center (padAll 2 (displayServerMessage ("SERVER MESSAGE")))  -- psMessage s
+
+displayServerMessage :: String -> Widget n
+displayServerMessage "" = emptyWidget
+displayServerMessage m  = (str m)
 
 header_hp :: PlayState -> String
-header_hp s = "Network Statistics"
+header_hp s = "Network Messages"
