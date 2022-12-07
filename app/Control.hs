@@ -36,7 +36,9 @@ control s ev = case ev of
                                         let y = putb (psBoard newstate) (psPos newstate) (psCur newstate) (Board.flipXO (psTurn newstate))
                                         case fst y of 
                                           Success -> do
-                                                      continue newstate {psGameState = getbS (snd(fromJust (snd y))),  psPos = x, psBoard = snd(fromJust (snd y))}
+                                                      if (getbS (snd(fromJust (snd y))) /= Ongoing) 
+                                                        then continue newstate {psIsMyTurn = 0, psGameState = getbS (snd(fromJust (snd y))), psPos = x, psBoard = snd(fromJust (snd y)) , psMessage = "Game ended" }
+                                                      else continue newstate {psGameState = getbS (snd(fromJust (snd y))),  psPos = x, psBoard = snd(fromJust (snd y))}
                                           otherwise -> do
                                                         continue (s {psMessage = "Invalid move from opponent"})
                                         
@@ -54,24 +56,24 @@ control s ev = case ev of
                                                                 nextGameS (s {psMessage = "Move sent. Waiting for opponent"}) (moveStatus)
                                                   otherwise ->  do
                                                                   nextGameS (s {psMessage = "Invalid move. Try again"})  (moveStatus)
-                                        else continue (s {psMessage = "Not your turn yet"})
+                                        else continue (s {psMessage = "Not your turn"})
 
   T.VtyEvent (V.EvKey V.KUp   _)  ->  do
                                         if (psIsMyTurn s == 1)
                                           then continue (move Grid.up    s)
-                                        else continue (s {psMessage = "Not your turn yet"})
+                                        else continue (s {psMessage = "Not your turn"})
   T.VtyEvent (V.EvKey V.KDown _)  ->  do
                                         if (psIsMyTurn s == 1)
                                           then continue (move Grid.down    s)
-                                        else continue (s {psMessage = "Not your turn yet"})
+                                        else continue (s {psMessage = "Not your turn"})
   T.VtyEvent (V.EvKey V.KLeft _)  ->  do
                                         if (psIsMyTurn s == 1)
                                           then continue (move Grid.left    s)
-                                        else continue (s {psMessage = "Not your turn yet"})
+                                        else continue (s {psMessage = "Not your turn"})
   T.VtyEvent (V.EvKey V.KRight _) ->  do
                                         if (psIsMyTurn s == 1)
                                           then continue (move Grid.right    s)
-                                        else continue (s {psMessage = "Not your turn yet"})
+                                        else continue (s {psMessage = "Not your turn"})
   T.VtyEvent (V.EvKey V.KEsc _)   ->  halt s
   _                               ->  continue s -- Brick.halt s
 
@@ -91,4 +93,4 @@ nextGameS :: PlayState -> (Status, Maybe (GridStatus, Board)) -> EventM n (Next 
 nextGameS p s = case s of
   (Error, _)  -> continue p
   (Success, Just (Ongoing, _) ) -> continue p {psGameState = getbS (snd(fromJust (snd s))), psPos = snd (psCur p), psBoard = snd(fromJust (snd s)), psTurn = (psTurn p), psIsMyTurn = 0}
-  (Success, _ ) -> continue p {psMessage = "Game ended"}
+  (Success, _ ) -> continue p {psGameState = getbS (snd(fromJust (snd s))), psPos = snd (psCur p), psBoard = snd(fromJust (snd s)), psTurn = (psTurn p), psIsMyTurn = 0, psMessage = "Game ended"}
