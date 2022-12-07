@@ -10,6 +10,7 @@ import Control.Monad (when)
 import Control.Monad.Fix (fix)
 import Data.Char (isDigit)
 import Data.Serialize
+import Utils
 
 
 -- module Main (main) where
@@ -38,6 +39,13 @@ import Data.ByteString (ByteString, length)
 --     repeatingProcessIncoming s (-1)
 --     putStrLn "Disconnected. Thank you for playing !!"
 
+sendMoveMsgWithHeader :: Socket -> CurPos -> IO ()
+sendMoveMsgWithHeader sock currPos =  do
+                                    let playerMsg = (encode (MoveMsg {moveMsgType = 5, moveGridNum = (fst currPos), moveGridRow = (snd currPos), moveGridCol = 0}))
+                                    let hdrMsg = (encode (MsgHeader 1 (Data.ByteString.length playerMsg) 2))
+                                    send sock hdrMsg
+                                    send sock playerMsg
+                                    return ()
 
 sendConnectMsg :: Socket -> String -> IO ()
 sendConnectMsg sock s = do
