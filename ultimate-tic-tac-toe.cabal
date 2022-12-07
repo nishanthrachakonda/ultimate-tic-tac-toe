@@ -26,33 +26,47 @@ source-repository head
 executable ultimate-tic-tac-toe-client
   main-is: Client.hs
   other-modules:
+      Board
+      Control
+      Grid
+      Main
+      Model
       MsgTypes
       Server
+      Utils
+      View
+      View.Grid
       Paths_ultimate_tic_tac_toe
   hs-source-dirs:
       app
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N -main-is Client
   build-depends:
       base >=4.7 && <5
+    , brick
     , bytestring
     , cereal
+    , containers
     , network >=2.6.1.0
     , utf8-string
+    , vty
   default-language: Haskell2010
 
 executable ultimate-tic-tac-toe-clientui
   main-is: Main.hs
   other-modules:
       Board
+      Client
       Control
       Grid
       Model
+      MsgTypes
+      Server
       Utils
       View
       View.Grid
       Paths_ultimate_tic_tac_toe
   hs-source-dirs:
-      user
+      app
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
@@ -68,18 +82,29 @@ executable ultimate-tic-tac-toe-clientui
 executable ultimate-tic-tac-toe-server
   main-is: Server.hs
   other-modules:
+      Board
       Client
+      Control
+      Grid
+      Main
+      Model
       MsgTypes
+      Utils
+      View
+      View.Grid
       Paths_ultimate_tic_tac_toe
   hs-source-dirs:
       app
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N -main-is Server
   build-depends:
       base >=4.7 && <5
+    , brick
     , bytestring
     , cereal
+    , containers
     , network >=2.6.1.0
     , utf8-string
+    , vty
   default-language: Haskell2010
 
 test-suite ultimate-tic-tac-toe-test

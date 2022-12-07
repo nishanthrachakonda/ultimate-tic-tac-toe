@@ -18,11 +18,12 @@ init = Map.empty
 -------------------------------
 
 putb :: Board -> Int -> CurPos -> Value -> (Status, Maybe (GridStatus, Board)) 
-putb board ppos pos value | not (validgrid ppos gridT (fst pos)) = (Error, Nothing) 
+putb board ppos pos value | not (validgrid ppos gridT gridC (fst pos)) = (Error, Nothing) 
                           | fst gridI == Error = (Error, Nothing)
                           | otherwise = (Success, Just(getbS boardI, boardI))
                           where
                               gridT = Map.lookup (fst pos) board
+                              gridC = Map.lookup ppos board
                               grid  | isNothing gridT = Map.empty
                                     | otherwise       = snd (fromJust gridT)
                               gridI = putg grid (snd pos) value
@@ -47,10 +48,12 @@ grideq :: Value -> Maybe (GridStatus, Grid) -> Bool
 grideq _ Nothing                   = False
 grideq value (Just (gridStatus, _))  = Win value == gridStatus
 
-validgrid :: Int -> Maybe (GridStatus, Grid) -> Int ->  Bool
-validgrid 0 _ _                      = True
-validgrid p Nothing c                = p == c
-validgrid p (Just (gridStatus, _)) c = gridStatus == Ongoing && p == c
+validgrid :: Int -> Maybe (GridStatus, Grid) -> Maybe (GridStatus, Grid) -> Int ->  Bool
+validgrid 0 _ _ _                    = True
+validgrid p Nothing _ c              = p == c
+validgrid p _ Nothing c              = p == c
+validgrid p _ (Just (gridS, _)) c    = (p == c) && (gridS == Ongoing)
+validgrid p (Just (gridS1, _)) (Just (gridS2, _)) c  = (gridS1 == Ongoing) && (gridS2 /= Ongoing)
 
 
 rbwinpos :: [[Int]]
