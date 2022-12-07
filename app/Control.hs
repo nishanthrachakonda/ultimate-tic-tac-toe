@@ -90,4 +90,5 @@ nextGameS :: PlayState -> (Status, Maybe (GridStatus, Board)) -> EventM n (Next 
 -------------------------------------------------------------------------------
 nextGameS p s = case s of
   (Error, _)  -> continue p
-  (Success, _) -> continue p {getbS (snd(fromJust (snd s))), psPos = snd (psCur p), psBoard = snd(fromJust (snd s)), psTurn = (psTurn p), psIsMyTurn = 0}
+  (Success, Just (Ongoing, _) ) -> continue p {psGameState = getbS (snd(fromJust (snd s))), psPos = snd (psCur p), psBoard = snd(fromJust (snd s)), psTurn = (psTurn p), psIsMyTurn = 0}
+  (Success, _ ) -> continue p {psMessage = "Game ended"}

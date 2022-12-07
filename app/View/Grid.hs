@@ -37,7 +37,7 @@ changeColor val = modifyDefAttr (`withBackColor` col)
                       | val == O = green
 
 header :: PlayState -> String
-header s = printf "Ultimate Tic-Tac-Toe Turn = %s" (show (psTurn s)) 
+header s = printf "Ultimate Tic-Tac-Toe"
 
 
 mkBoard :: PlayState -> Board -> Widget n
@@ -118,17 +118,24 @@ view_vp s =
             whoseTurn = psTurn s
             currPosition = psCur s
  
+getGameState :: PlayState -> String
+getGameState s =  case psGameState s of
+                     Win v -> if (psTurn s == v) then "You won" else "You lost"
+                     Draw -> "Draw"
+                     Ongoing -> "Ongoing"
+
+getTurn :: PlayState -> String
+getTurn s = case psTurn s of
+                X -> "X"
+                O -> "O"
+
 mkVPane :: PlayState -> Value -> CurPos -> Widget n
 mkVPane s whoseTurn currPosition = withBorderStyle unicode $
-              (padAll 5 (vTile ([playerName, turn, gameStatus, gameResult])))
+              (padAll 5 (vTile ([playerName, gameStatus])))
               where 
-                playerName = (str "Player :") <+> (str "X or O") 
-                turn = (str "Current Turn :") <+> (str "whoseTurn")
-                gameStatus = (str "Game Status :") <+> (str "Ongoing")
-                gameResult | "Ongoing" == "Ongoing" = (hCenter (vBox ([str "X won"])))
-                           | "Ongoing" == "Win O" = (str "O won")
-                           | "Ongoing" == "Draw"  = (str "Draw")
-                           | otherwise = emptyWidget
+                playerName = (str "You are playing: ") <+> (str (getTurn s) )  
+                gameStatus = (str "Game Status: ") <+> (str ( getGameState s) )-- TODO
+
 
 --gameResult :: GridStatus -> Widget n
 --gameResult stat | stat == Win X    = (printResultWidget "X won")
@@ -141,7 +148,7 @@ mkVPane s whoseTurn currPosition = withBorderStyle unicode $
 
  
 header_vp :: PlayState -> String
-header_vp s = "Game Statistics"
+header_vp s = "Game Overview"
 
 
 view_hp :: PlayState -> Widget String
