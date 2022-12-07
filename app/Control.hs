@@ -13,6 +13,7 @@ import Grid
 import Data.Maybe 
 import Debug.Trace (trace)
 import MsgTypes
+import qualified Brick.BorderMap as Map
 -------------------------------------------------------------------------------
 
 control :: PlayState -> BrickEvent n (Either String GeneralMsg) -> EventM n (Next PlayState)
@@ -36,7 +37,7 @@ control s ev = case ev of
                                         let y = putb (psBoard newstate) (psPos newstate) (psCur newstate) (Board.flipXO (psTurn newstate))
                                         case fst y of 
                                           Success -> do
-                                                      continue newstate {psPos = x, psBoard = snd(fromJust (snd y))}
+                                                      continue newstate {psGameState = getbS (snd(fromJust (snd y))),  psPos = x, psBoard = snd(fromJust (snd y))}
                                           otherwise -> do
                                                         -- print error below the grid
                                                         continue s
@@ -91,4 +92,4 @@ nextGameS :: PlayState -> (Status, Maybe (GridStatus, Board)) -> EventM n (Next 
 -------------------------------------------------------------------------------
 nextGameS p s = case s of
   (Error, _)  -> continue p
-  (Success, _) -> continue p {psPos = snd (psCur p), psBoard = snd(fromJust (snd s)), psTurn = (psTurn p), psIsMyTurn = 0}
+  (Success, _) -> continue p {getbS (snd(fromJust (snd s))), psPos = snd (psCur p), psBoard = snd(fromJust (snd s)), psTurn = (psTurn p), psIsMyTurn = 0}

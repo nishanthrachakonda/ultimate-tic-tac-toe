@@ -26,6 +26,7 @@ data PlayState = PS
   , psIsMyTurn :: Int
   , psConn   :: Socket
   , psMessage :: String
+  , psGameState :: GridStatus
   }
 
 init :: PlayState
@@ -38,7 +39,8 @@ init = PS {
     psPos = 0,
     psPlayerNum = 0, -- change this on ack from server
     psIsMyTurn = 0,
-    psMessage = "Sending connection request to server"
+    psMessage = "Sending connection request to server",
+    psGameState = Ongoing
 }
 
 data Player = Local | Server
