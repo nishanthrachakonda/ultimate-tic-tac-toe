@@ -162,4 +162,4 @@ displayServerMessage "" = emptyWidget
 displayServerMessage m  = (strWrap m)
 
 header_hp :: PlayState -> String
-header_hp s = "Network Messages"
+header_hp s = "Messages"

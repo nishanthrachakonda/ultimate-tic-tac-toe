@@ -33,13 +33,24 @@ putb board ppos pos value | not (validgrid ppos gridT gridC (fst pos)) = (Error,
 ---- / State
 ----------------------------------
 getbS :: Board -> GridStatus
-getbS board | isbWon board X      = Win X
-            | isbWon board O      = Win O
-            | Map.size board == 9 = Draw
-            | otherwise           = Ongoing
+getbS board | isbWon board X = Win X
+            | isbWon board O = Win O
+            | isbDraw board  = Draw
+            | otherwise      = Ongoing
 
 isbWon :: Board -> Value -> Bool
 isbWon board value = any and (winbpos board value)
+
+isbDraw :: Board -> Bool
+isbDraw board = and (allbpos board)
+
+allbpos :: Board -> [Bool]
+allbpos board = map (\p -> notOng (Map.lookup p board)) [1..9]
+
+notOng :: Maybe (GridStatus, Grid) -> Bool
+notOng Nothing = False
+notOng (Just (Ongoing, _)) = False
+notOng _ = True
 
 winbpos :: Board -> Value -> [[Bool]]
 winbpos board value = map (map (\p -> grideq value (Map.lookup p board))) (rwinpos ++ cwinpos ++ dwinpos ++ adwinpos)
