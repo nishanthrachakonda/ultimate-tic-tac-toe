@@ -38,6 +38,15 @@ import Data.ByteString (ByteString, length)
 --     repeatingProcessIncoming s (-1)
 --     putStrLn "Disconnected. Thank you for playing !!"
 
+
+sendConnectMsg :: Socket -> String -> IO ()
+sendConnectMsg sock s = do
+                          let playerMsg = (encode (ConnectMsg {connectMsgType = 2, connectMsgPlayerName = s}))
+                          let hdrMsg = (encode (MsgHeader 1 (Data.ByteString.length playerMsg) 2))
+                          send sock hdrMsg
+                          send sock playerMsg
+                          return ()
+
 repeatingProcessIncoming :: Socket -> Int -> IO ()
 repeatingProcessIncoming s playerNum = do
   actualMsg <- readMsgFromNetwork s

@@ -22,8 +22,9 @@ main =  Client.runTCPClient "127.0.0.1" "24000" (\sock -> do
   -- rounds <- fromMaybe defaultRounds <$> getRounds
   chan   <- newBChan 10
   -- Send connect request to server
-
   
+  Client.sendConnectMsg sock ""
+  -- msg <- readMsgFromNetwork sock
   forkIO  $ forever $ do 
     msg <- readMsgFromNetwork sock
     writeBChan chan msg
@@ -31,7 +32,8 @@ main =  Client.runTCPClient "127.0.0.1" "24000" (\sock -> do
   let buildVty = V.mkVty V.defaultConfig
   initialVty <- buildVty
   --msg <- ...
-  customMain initialVty buildVty (Just chan) app Model.init
+  let initState = Model.PS (Model.psX Model.init) (Model.psO Model.init) (Model.psBoard Model.init) (Model.psTurn Model.init) (Model.psCur Model.init) (Model.psPos Model.init) (Model.psPlayerNum Model.init) sock
+  customMain initialVty buildVty (Just chan) app initState
   print ("Game exited")
   )
 
