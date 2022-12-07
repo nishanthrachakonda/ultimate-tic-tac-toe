@@ -44,9 +44,9 @@ init = PS {
 data Player = Local | Server
   deriving (Eq)
 
-playerName :: PlayState -> Value
-playerName ps | psX ps == Local = X
-              | otherwise = O
+playerName :: PlayState -> String
+playerName ps | psX ps == Local = "X"
+              | otherwise = "O"
 
 isCurr :: PlayState -> Utils.CurPos -> Bool
 isCurr ps cp = (psCur ps) == cp
