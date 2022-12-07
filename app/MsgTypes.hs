@@ -178,8 +178,7 @@ instance Serialize PairedMsg
 data MoveMsg = MoveMsg {
     moveMsgType :: Int, -- should be always 5
     moveGridNum :: Int,
-    moveGridRow :: Int,
-    moveGridCol :: Int
+    moveCellNum :: Int
 } deriving Generic
 
 instance Serialize MoveMsg

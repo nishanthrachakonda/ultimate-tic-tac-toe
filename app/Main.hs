@@ -32,7 +32,7 @@ main =  Client.runTCPClient "127.0.0.1" "24000" (\sock -> do
   let buildVty = V.mkVty V.defaultConfig
   initialVty <- buildVty
   --msg <- ...
-  let initState = Model.PS (Model.psX Model.init) (Model.psO Model.init) (Model.psBoard Model.init) (Model.psTurn Model.init) (Model.psCur Model.init) (Model.psPos Model.init) (Model.psPlayerNum Model.init) sock
+  let initState = Model.init { psConn = sock }
   customMain initialVty buildVty (Just chan) app initState
   print ("Game exited")
   )

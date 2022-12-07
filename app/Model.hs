@@ -23,6 +23,7 @@ data PlayState = PS
   , psCur    :: CurPos    
   , psPos    :: Int
   , psPlayerNum :: Int
+  , psIsMyTurn :: Int
   , psConn   :: Socket
   }
 
@@ -34,7 +35,8 @@ init = PS {
     psTurn = X, -- change this on ack from server
     psCur = (1, 1),
     psPos = 0,
-    psPlayerNum = 0 -- change this on ack from server
+    psPlayerNum = 0, -- change this on ack from server
+    psIsMyTurn = 0
 }
 
 data Player = Local | Server

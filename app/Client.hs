@@ -41,8 +41,8 @@ import Data.ByteString (ByteString, length)
 
 sendMoveMsgWithHeader :: Socket -> CurPos -> IO ()
 sendMoveMsgWithHeader sock currPos =  do
-                                    let playerMsg = (encode (MoveMsg {moveMsgType = 5, moveGridNum = (fst currPos), moveGridRow = (snd currPos), moveGridCol = 0}))
-                                    let hdrMsg = (encode (MsgHeader 1 (Data.ByteString.length playerMsg) 2))
+                                    let playerMsg = (encode (MoveMsg {moveMsgType = 5, moveGridNum = (fst currPos), moveCellNum = (snd currPos) }))
+                                    let hdrMsg = (encode (MsgHeader 1 (Data.ByteString.length playerMsg) 5))
                                     send sock hdrMsg
                                     send sock playerMsg
                                     return ()
@@ -104,10 +104,6 @@ handleMove msg s playerNum = do
   --get the userinput for the move to be made.
   let (gridNumber, x, y) = (1, 1, 1)
   ---------------------------------
-
-
-  let myMove = (encode (MoveMsg {moveMsgType = 5, moveGridNum = gridNumber, moveGridRow = x, moveGridCol = y}))
-  send s myMove
   return ()
 
 
