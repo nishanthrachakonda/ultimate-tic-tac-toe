@@ -17,20 +17,55 @@ import Graphics.Vty hiding (dim)
 -------------------------------------------------------------------------------
 view :: PlayState -> [Widget String]
 -------------------------------------------------------------------------------
-view s = [view' s]
+view s = [v]
+        where v = (((view' s) <+> (view_vp s)) <=> (view_hp s))
 
 view' :: PlayState -> Widget String
 
-view' s = vLimit 35 $ hLimit 130 $ mkBoard s board
+view' s = 
+    withBorderStyle unicode $
+    borderWithLabel (changeColor (psTurn s) (str (header s))) $
+    vLimitPercent 90 $
+    hLimitPercent 70 $
+    (mkBoard s board)
           where
             board = psBoard s
+
+changeColor :: Value ->  Widget n -> Widget n
+changeColor val = modifyDefAttr (`withBackColor` col)
+            where col | val == X = magenta
+                      | val == O = green
+
+header :: PlayState -> String
+header s = printf "Ultimate Tic-Tac-Toe Turn = %s" (show (psTurn s)) 
+
 
 mkBoard :: PlayState -> Board -> Widget n
 mkBoard s b = withBorderStyle unicode $
               vTile ([ mkgRow s row b | row <- [1..3]])
 
 mkgRow :: PlayState -> Int -> Board -> Widget n
-mkgRow s r b = hTile [ (padAll 2 (mkGrid s ((r-1)*3+i) (getGrid ((r-1)*3+i) b))) | i <- [1..3] ]
+mkgRow s r b = hTile [( showState (getGridStatus ((r-1)*3+i) b)  (padAll 2 (mkGrid s ((r-1)*3+i) (getGrid ((r-1)*3+i) b)))) | i <- [1..3] ]
+
+showState :: GridStatus -> Widget n -> Widget n
+showState stat = modifyDefAttr (`withBackColor` col)
+              where col  | stat == (Win X) = magenta
+                         | stat == (Win O) = green 
+                         | stat == (Draw)  = blue
+                         | otherwise = black
+
+getGridStatus :: Int -> Board -> GridStatus
+getGridStatus i b = stat
+              where gridL = Map.lookup i b
+                    stat | isNothing gridL = Ongoing
+                         | otherwise       = fst (fromJust gridL)
+
+
+getGrid :: Int -> Board -> Grid
+getGrid i b = grid
+              where gridL = Map.lookup i b
+                    grid | isNothing gridL = Map.empty
+                         | otherwise       = snd (fromJust gridL)   
 
 mkGrid :: PlayState -> Int -> Grid -> Widget n
 mkGrid s gp g = withBorderStyle unicode $
@@ -58,12 +93,6 @@ mkValue (Just X) = blockX
 mkValue (Just O) = blockO
 mkValue Nothing  = blockB     
 
-getGrid :: Int -> Board -> Grid
-getGrid i b = grid
-              where gridL = Map.lookup i b
-                    grid | isNothing gridL = Map.empty
-                         | otherwise       = snd (fromJust gridL)   
-
 blockB, blockX, blockO :: Widget n
 blockB = str " "
 blockX = str "X" 
@@ -76,3 +105,39 @@ vTile _      = emptyWidget
 hTile :: [Widget n] -> Widget n
 hTile (b:bs) = hBox (b : [vBorder <+> b| b <- bs])
 hTile _      = emptyWidget
+
+
+view_vp :: PlayState -> Widget String
+
+view_vp s = 
+    withBorderStyle unicode $
+    borderWithLabel (changeColor (psTurn s) (str (header_vp s))) $
+    vLimitPercent 90 $
+    (padAll 5 (mkPane s whoseTurn currPosition))
+          where
+            whoseTurn = psTurn s
+            currPosition = psCur s
+ 
+mkPane :: PlayState -> Value -> CurPos -> Widget n
+mkPane s whoseTurn currPosition = withBorderStyle unicode $
+              (padAll 5 (vTile ([playerName, turn, gameStatus])))
+              where 
+                playerName = (str "Player :") <+> (str "X or O") 
+                turn = (str "Current Turn :")  -- <+> (str <$> whoseTurn)
+                gameStatus = (str "Game Status :") <+> (str "Ongoing")
+
+header_vp :: PlayState -> String
+header_vp s = "Game Statistics"
+
+
+view_hp :: PlayState -> Widget String
+
+view_hp s = 
+    withBorderStyle unicode $
+    borderWithLabel (changeColor (psTurn s) (str (header_hp s))) $
+    vLimitPercent 10 $
+    (str "###")
+  --  (gamePane s)
+
+header_hp :: PlayState -> String
+header_hp s = "Network Statistics"
