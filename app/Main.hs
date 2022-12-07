@@ -13,21 +13,29 @@ import Control
 import System.Environment (getArgs)
 import Text.Read (readMaybe)
 import Data.Maybe (fromMaybe)
+import Client
+import MsgTypes
 
 -------------------------------------------------------------------------------
 main :: IO ()
-main = do
+main =  Client.runTCPClient "127.0.0.1" "24000" (\sock -> do
   -- rounds <- fromMaybe defaultRounds <$> getRounds
   chan   <- newBChan 10
-  forkIO  $ forever $ do
-    writeBChan chan Tick
-    threadDelay 100000 -- decides how fast your game moves
+  -- Send connect request to server
+
+  
+  forkIO  $ forever $ do 
+    msg <- readMsgFromNetwork sock
+    writeBChan chan msg
+
   let buildVty = V.mkVty V.defaultConfig
   initialVty <- buildVty
+  --msg <- ...
   customMain initialVty buildVty (Just chan) app Model.init
-  print ("Nothing")
+  print ("Game exited")
+  )
 
-app :: App PlayState Tick String
+app :: App PlayState (Either String GeneralMsg) String
 app = App
   { appDraw         = view 
   , appChooseCursor = const . const Nothing

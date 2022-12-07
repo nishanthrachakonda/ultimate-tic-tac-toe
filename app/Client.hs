@@ -25,18 +25,18 @@ import Data.String (String)
 import MsgTypes
 import Data.ByteString (ByteString, length)
 
-main :: IO ()
-main = runTCPClient "127.0.0.1" "24000" $ \s -> do
-    putStrLn "Hi, what's your name?"
-    name <- getLine
-    putStrLn ("Hello " ++ name ++ "!")
-    let playerMsg = (encode (ConnectMsg {connectMsgType = 2, connectMsgPlayerName = name}))
-    let hdrMsg = (encode (MsgHeader 1 (Data.ByteString.length playerMsg) 2))
-    putStrLn (show (Data.ByteString.length hdrMsg))
-    send s hdrMsg
-    send s playerMsg
-    repeatingProcessIncoming s (-1)
-    putStrLn "Disconnected. Thank you for playing !!"
+-- main :: IO ()
+-- main = runTCPClient "127.0.0.1" "24000" $ \s -> do
+--     putStrLn "Hi, what's your name?"
+--     name <- getLine
+--     putStrLn ("Hello " ++ name ++ "!")
+--     let playerMsg = (encode (ConnectMsg {connectMsgType = 2, connectMsgPlayerName = name}))
+--     let hdrMsg = (encode (MsgHeader 1 (Data.ByteString.length playerMsg) 2))
+--     putStrLn (show (Data.ByteString.length hdrMsg))
+--     send s hdrMsg
+--     send s playerMsg
+--     repeatingProcessIncoming s (-1)
+--     putStrLn "Disconnected. Thank you for playing !!"
 
 repeatingProcessIncoming :: Socket -> Int -> IO ()
 repeatingProcessIncoming s playerNum = do

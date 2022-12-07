@@ -11,11 +11,12 @@ import Utils
 import Grid
 import Data.Maybe 
 import Debug.Trace (trace)
-
+import MsgTypes
 -------------------------------------------------------------------------------
 
-control :: PlayState -> BrickEvent n Tick -> EventM n (Next PlayState)
+control :: PlayState -> BrickEvent n (Either String GeneralMsg) -> EventM n (Next PlayState)
 control s ev = case ev of 
+  T.AppEvent (a)                  -> halt s
   T.VtyEvent (V.EvKey V.KEnter _) -> nextGameS s (play s)
   T.VtyEvent (V.EvKey V.KUp   _)  -> continue (move Grid.up    s)
   T.VtyEvent (V.EvKey V.KDown _)  -> continue (move Grid.down  s)

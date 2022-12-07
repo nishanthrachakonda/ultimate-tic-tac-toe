@@ -5,7 +5,7 @@ import Prelude
 import Utils
 
 import Board
-
+import Network.Socket
 -------------------------------------------------------------------------------
 -- | Ticks mark passing of time: a custom event that we constantly stream
 -------------------------------------------------------------------------------
@@ -22,6 +22,7 @@ data PlayState = PS
   , psTurn   :: Value     
   , psCur    :: CurPos    
   , psPos    :: Int
+  , psConn   :: Socket
   }
 
 init :: PlayState

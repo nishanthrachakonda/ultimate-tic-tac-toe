@@ -53,29 +53,13 @@ executables:
     - vty
 
   ultimate-tic-tac-toe-client:
-    main-is:                Client.hs
-    source-dirs:         app
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    - -main-is Client
-    dependencies:
-    - bytestring
-    - utf8-string
-    - network >= 2.6.1.0
-    - cereal
-    - brick
-    - containers
-    - vty
-
-  ultimate-tic-tac-toe-clientui:
     main-is:                Main.hs
     source-dirs:         app
     ghc-options:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
+    - -main-is Main
     dependencies:
     - bytestring
     - utf8-string
