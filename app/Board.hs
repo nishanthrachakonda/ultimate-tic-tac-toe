@@ -52,8 +52,8 @@ validgrid :: Int -> Maybe (GridStatus, Grid) -> Maybe (GridStatus, Grid) -> Int 
 validgrid 0 _ _ _                    = True
 validgrid p Nothing _ c              = p == c
 validgrid p _ Nothing c              = p == c
-validgrid p _ (Just (gridS, _)) c    = (p == c) && (gridS == Ongoing)
-validgrid p (Just (gridS1, _)) (Just (gridS2, _)) c  = (gridS1 == Ongoing) && (gridS2 /= Ongoing)
+validgrid p _ (Just (Ongoing, _)) c  = p == c
+validgrid _ (Just (gridS1, _)) (Just (gridS2, _)) _  = (gridS1 == Ongoing) && (gridS2 /= Ongoing)
 
 
 rbwinpos :: [[Int]]
