@@ -21,26 +21,24 @@ control s ev = case ev of
   T.AppEvent (Left errorString)   ->  continue s
   T.AppEvent (Right (AkMsg msg))  ->  do 
                                         let turn = playerNum msg
-                                        -- Print message below the grid
                                         if (turn == 1) 
-                                          then (continue s {psTurn = X, psPlayerNum = 1})
-                                        else (continue s {psTurn = O, psPlayerNum = 2})
+                                          then (continue s {psTurn = X, psPlayerNum = 1, psMessage = "Waiting for another player to join"})
+                                        else (continue s {psTurn = O, psPlayerNum = 2, psMessage = "Waiting for another player to join"})
   T.AppEvent (Right (PdMsg msg))  ->  do 
                                           -- Print message below the grid
                                         if (psPlayerNum s == 1) 
-                                          then (continue s {psIsMyTurn = 1})
-                                        else (continue s)
+                                          then (continue s {psIsMyTurn = 1, psMessage = "You have been paired. Your turn now"})
+                                        else (continue s {psMessage = "You have been paired. You move second. Waiting for opponent"})
   T.AppEvent (Right (MvMsg msg))  ->  do 
                                         let grid = (moveGridNum msg)
                                         let x = (moveCellNum msg)
-                                        let newstate = s {psIsMyTurn = 1, psCur = (grid,x)}
+                                        let newstate = s {psIsMyTurn = 1, psCur = (grid,x), psMessage = "Opponent moved. Your turn now"}
                                         let y = putb (psBoard newstate) (psPos newstate) (psCur newstate) (Board.flipXO (psTurn newstate))
                                         case fst y of 
                                           Success -> do
                                                       continue newstate {psGameState = getbS (snd(fromJust (snd y))),  psPos = x, psBoard = snd(fromJust (snd y))}
                                           otherwise -> do
-                                                        -- print error below the grid
-                                                        continue s
+                                                        continue (s {psMessage = "Invalid move from opponent"})
                                         
 
   T.AppEvent (Right (DcMsg msg))  ->  do 
@@ -53,27 +51,27 @@ control s ev = case ev of
                                                 case fst moveStatus of 
                                                   Success ->  do
                                                                 liftIO $ sendMoveMsgWithHeader (psConn s) (psCur s)
-                                                                nextGameS s (moveStatus)
+                                                                nextGameS (s {psMessage = "Move sent. Waiting for opponent"}) (moveStatus)
                                                   otherwise ->  do
-                                                                  nextGameS s (moveStatus)
-                                        else continue s
+                                                                  nextGameS (s {psMessage = "Invalid move. Try again"})  (moveStatus)
+                                        else continue (s {psMessage = "Not your turn yet"})
 
   T.VtyEvent (V.EvKey V.KUp   _)  ->  do
                                         if (psIsMyTurn s == 1)
                                           then continue (move Grid.up    s)
-                                        else continue s
+                                        else continue (s {psMessage = "Not your turn yet"})
   T.VtyEvent (V.EvKey V.KDown _)  ->  do
                                         if (psIsMyTurn s == 1)
                                           then continue (move Grid.down    s)
-                                        else continue s
+                                        else continue (s {psMessage = "Not your turn yet"})
   T.VtyEvent (V.EvKey V.KLeft _)  ->  do
                                         if (psIsMyTurn s == 1)
                                           then continue (move Grid.left    s)
-                                        else continue s
+                                        else continue (s {psMessage = "Not your turn yet"})
   T.VtyEvent (V.EvKey V.KRight _) ->  do
                                         if (psIsMyTurn s == 1)
                                           then continue (move Grid.right    s)
-                                        else continue s
+                                        else continue (s {psMessage = "Not your turn yet"})
   T.VtyEvent (V.EvKey V.KEsc _)   ->  halt s
   _                               ->  continue s -- Brick.halt s
 
