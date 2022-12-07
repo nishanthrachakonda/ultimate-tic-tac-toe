@@ -73,8 +73,13 @@ executables:
 tests:
   ultimate-tic-tac-toe-test:
     main:                Spec.hs
-    source-dirs:         test
+    source-dirs:         test, app
     ghc-options:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
+    dependencies:
+    - scientific
+    - containers
+    - HUnit
+
